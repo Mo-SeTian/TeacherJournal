@@ -24,8 +24,19 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
+          # 查找 sdkmanager
+          SDKMANAGER=$(find ${ANDROID_HOME} -name "sdkmanager" -type f 2>/dev/null | head -1)
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Downloading Android command-line tools..."
+            mkdir -p ${ANDROID_HOME}/cmdline-tools
+            curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/cmdline-tools.zip
+            unzip -q /tmp/cmdline-tools.zip -d ${ANDROID_HOME}/cmdline-tools
+            mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest
+            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          echo "Using sdkmanager: $SDKMANAGER"
+          yes | $SDKMANAGER --licenses > /dev/null 2>&1 || true
+          $SDKMANAGER "platforms;android-34" "build-tools;34.0.0"
 
       - name: Generate keystore for signing
         run: |
