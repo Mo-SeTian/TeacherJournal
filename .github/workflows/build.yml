@@ -22,8 +22,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Install Android SDK components
+        run: |
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
       - name: Generate keystore for signing
         run: |
@@ -39,12 +41,15 @@ jobs:
             -noprompt
 
       - name: Build Release APK
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.4
+          arguments: assembleRelease
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/release.jks
           KEYSTORE_PASSWORD: android
           KEY_ALIAS: teacherjournal
           KEY_PASSWORD: android
-        run: ./gradlew assembleRelease
 
       - name: Generate MD5 and rename APK
         run: |

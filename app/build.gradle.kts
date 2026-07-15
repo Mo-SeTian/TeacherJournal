@@ -23,7 +23,7 @@ android {
     }
 
     signingConfigs {
-        create("release") {
+        create("ci") {
             // CI 环境通过环境变量提供签名信息；本地可通过 keystore.properties 文件
             val keystorePropertiesFile = rootProject.file("keystore.properties")
             if (keystorePropertiesFile.exists()) {
@@ -53,7 +53,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("ci")
         }
     }
     compileOptions {
