@@ -53,6 +53,29 @@ interface SessionRecordDao {
     @Query("UPDATE session_records SET paymentStatus = :status WHERE id = :id")
     suspend fun updatePaymentStatus(id: Long, status: PaymentStatus)
 
+    /**
+     * 获取学生未结算的上课记录（月结算模式）
+     */
+    @Query("SELECT * FROM session_records WHERE studentId = :studentId AND settlementId = -1 ORDER BY date ASC")
+    suspend fun getUnsettledRecords(studentId: Long): List<SessionRecord>
+
+    /**
+     * 获取学生指定月份未结算的上课记录
+     */
+    @Query("""
+        SELECT * FROM session_records 
+        WHERE studentId = :studentId AND settlementId = -1 
+        AND date BETWEEN :startOfMonth AND :endOfMonth 
+        ORDER BY date ASC
+    """)
+    suspend fun getUnsettledRecordsForMonth(studentId: Long, startOfMonth: Long, endOfMonth: Long): List<SessionRecord>
+
+    /**
+     * 批量更新记录的结算 ID
+     */
+    @Query("UPDATE session_records SET settlementId = :settlementId WHERE id IN (:recordIds)")
+    suspend fun updateSettlementId(recordIds: List<Long>, settlementId: Long)
+
     @Delete
     suspend fun delete(record: SessionRecord)
 }

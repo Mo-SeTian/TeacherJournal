@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teacher.journal.data.entity.*
 import com.teacher.journal.data.repository.CoursePackageRepository
+import com.teacher.journal.data.repository.MonthlySettlementRepository
 import com.teacher.journal.data.repository.SessionRecordRepository
 import com.teacher.journal.data.repository.StudentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ data class StudentDetailUiState(
     val remainingSessions: Int = 0,
     val sessionRecords: List<SessionRecord> = emptyList(),
     val unpaidRecords: List<SessionRecord> = emptyList(),
+    val monthlySettlements: List<MonthlySettlement> = emptyList(),
     val isLoading: Boolean = true
 )
 
@@ -30,7 +32,8 @@ data class StudentDetailUiState(
 class StudentViewModel @Inject constructor(
     private val studentRepository: StudentRepository,
     private val coursePackageRepository: CoursePackageRepository,
-    private val sessionRecordRepository: SessionRecordRepository
+    private val sessionRecordRepository: SessionRecordRepository,
+    private val monthlySettlementRepository: MonthlySettlementRepository
 ) : ViewModel() {
 
     private val _listUiState = MutableStateFlow(StudentListUiState())
@@ -101,6 +104,13 @@ class StudentViewModel @Inject constructor(
                     }
                 }
             }
+
+            // 月结算记录
+            launch {
+                monthlySettlementRepository.getSettlementsForStudent(studentId).collect { settlements ->
+                    _detailUiState.update { it.copy(monthlySettlements = settlements) }
+                }
+            }
         }
     }
 
@@ -110,6 +120,7 @@ class StudentViewModel @Inject constructor(
         subject: String,
         location: String,
         paymentType: PaymentType,
+        monthlyRate: Double,
         notes: String,
         onComplete: (Long) -> Unit
     ) {
@@ -120,6 +131,7 @@ class StudentViewModel @Inject constructor(
                 subject = subject,
                 location = location,
                 paymentType = paymentType,
+                monthlyRate = monthlyRate,
                 notes = notes
             )
             val id = studentRepository.insert(student)
@@ -134,6 +146,7 @@ class StudentViewModel @Inject constructor(
         subject: String,
         location: String,
         paymentType: PaymentType,
+        monthlyRate: Double,
         notes: String,
         onComplete: () -> Unit
     ) {
@@ -146,6 +159,7 @@ class StudentViewModel @Inject constructor(
                     subject = subject,
                     location = location,
                     paymentType = paymentType,
+                    monthlyRate = monthlyRate,
                     notes = notes
                 )
             )

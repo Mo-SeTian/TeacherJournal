@@ -220,6 +220,12 @@ fun SessionRecordScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Secondary
                     )
+                } else if (student.paymentType == PaymentType.MONTHLY) {
+                    Text(
+                        "📅 月结算模式 — 记录将归入本月结算",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Secondary
+                    )
                 } else {
                     // 按次付费：金额 + 收费状态
                     Text(

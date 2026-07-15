@@ -29,6 +29,7 @@ fun StudentEditScreen(
     var subject by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var paymentType by remember { mutableStateOf(PaymentType.PREPAID) }
+    var monthlyRate by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf(false) }
 
@@ -48,6 +49,7 @@ fun StudentEditScreen(
             subject = s.subject
             location = s.location
             paymentType = s.paymentType
+            monthlyRate = if (s.monthlyRate > 0) String.format("%.0f", s.monthlyRate) else ""
             notes = s.notes
         }
     }
@@ -157,6 +159,32 @@ fun StudentEditScreen(
                         selectedLabelColor = Tertiary
                     )
                 )
+                FilterChip(
+                    selected = paymentType == PaymentType.MONTHLY,
+                    onClick = { paymentType = PaymentType.MONTHLY },
+                    label = { Text("📅 月结算") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Secondary.copy(alpha = 0.15f),
+                        selectedLabelColor = Secondary
+                    )
+                )
+            }
+
+            // 月薪字段（仅月结算模式显示）
+            if (paymentType == PaymentType.MONTHLY) {
+                OutlinedTextField(
+                    value = monthlyRate,
+                    onValueChange = { monthlyRate = it },
+                    label = { Text("月薪/月费（元，可选）") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    prefix = { Text("¥") },
+                    supportingText = { Text("创建结算时自动填充此金额，可手动修改") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Primary,
+                        focusedLabelColor = Primary
+                    )
+                )
             }
 
             // 备注
@@ -189,6 +217,7 @@ fun StudentEditScreen(
                             subject = subject.trim(),
                             location = location.trim(),
                             paymentType = paymentType,
+                            monthlyRate = monthlyRate.toDoubleOrNull() ?: 0.0,
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     } else {
@@ -198,6 +227,7 @@ fun StudentEditScreen(
                             subject = subject.trim(),
                             location = location.trim(),
                             paymentType = paymentType,
+                            monthlyRate = monthlyRate.toDoubleOrNull() ?: 0.0,
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     }

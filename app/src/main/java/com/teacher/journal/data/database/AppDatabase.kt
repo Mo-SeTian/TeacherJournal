@@ -10,9 +10,10 @@ import com.teacher.journal.data.entity.*
         Student::class,
         CoursePackage::class,
         SessionRecord::class,
-        Earning::class
+        Earning::class,
+        MonthlySettlement::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -20,4 +21,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun coursePackageDao(): CoursePackageDao
     abstract fun sessionRecordDao(): SessionRecordDao
     abstract fun earningDao(): EarningDao
+    abstract fun monthlySettlementDao(): MonthlySettlementDao
 }

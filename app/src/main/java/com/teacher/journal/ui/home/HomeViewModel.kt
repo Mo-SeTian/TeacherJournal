@@ -2,10 +2,12 @@ package com.teacher.journal.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teacher.journal.data.entity.MonthlySettlement
 import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.data.entity.Student
 import com.teacher.journal.data.repository.CoursePackageRepository
 import com.teacher.journal.data.repository.EarningRepository
+import com.teacher.journal.data.repository.MonthlySettlementRepository
 import com.teacher.journal.data.repository.SessionRecordRepository
 import com.teacher.journal.data.repository.StudentRepository
 import com.teacher.journal.util.DateUtils
@@ -19,6 +21,7 @@ data class HomeUiState(
     val totalRemainingSessions: Int = 0,
     val monthlyIncome: Double = 0.0,
     val unpaidRecords: List<UnpaidRecordItem> = emptyList(),
+    val unpaidSettlements: List<UnpaidSettlementItem> = emptyList(),
     val lowSessionStudents: List<LowSessionStudentItem> = emptyList(),
     val recentRecords: List<SessionRecord> = emptyList(),
     val isLoading: Boolean = true
@@ -27,7 +30,12 @@ data class HomeUiState(
 data class UnpaidRecordItem(
     val record: SessionRecord,
     val studentName: String,
-    val isOverdue: Boolean // 超过7天未收
+    val isOverdue: Boolean
+)
+
+data class UnpaidSettlementItem(
+    val settlement: MonthlySettlement,
+    val studentName: String
 )
 
 data class LowSessionStudentItem(
@@ -41,7 +49,8 @@ class HomeViewModel @Inject constructor(
     private val studentRepository: StudentRepository,
     private val coursePackageRepository: CoursePackageRepository,
     private val sessionRecordRepository: SessionRecordRepository,
-    private val earningRepository: EarningRepository
+    private val earningRepository: EarningRepository,
+    private val monthlySettlementRepository: MonthlySettlementRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -75,7 +84,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            // 待收费记录
+            // 待收费记录（按次付费）
             launch {
                 combine(
                     sessionRecordRepository.getUnpaidRecords(),
@@ -91,6 +100,24 @@ class HomeViewModel @Inject constructor(
                     }
                 }.collect { items ->
                     _uiState.update { it.copy(unpaidRecords = items) }
+                }
+            }
+
+            // 未收款月结算
+            launch {
+                combine(
+                    monthlySettlementRepository.getUnpaidSettlements(),
+                    studentRepository.getAllStudents()
+                ) { settlements, students ->
+                    val studentMap = students.associateBy { it.id }
+                    settlements.map { settlement ->
+                        UnpaidSettlementItem(
+                            settlement = settlement,
+                            studentName = studentMap[settlement.studentId]?.name ?: "未知"
+                        )
+                    }
+                }.collect { items ->
+                    _uiState.update { it.copy(unpaidSettlements = items) }
                 }
             }
 

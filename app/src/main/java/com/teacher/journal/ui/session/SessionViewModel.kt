@@ -118,6 +118,20 @@ class SessionViewModel @Inject constructor(
                     )
                     sessionRecordRepository.insert(record)
                 }
+            } else if (student.paymentType == PaymentType.MONTHLY) {
+                // 月结算：仅记录上课，不计费，等待月底统一结算
+                val record = SessionRecord(
+                    studentId = studentId,
+                    date = date,
+                    startTime = startTime,
+                    endTime = endTime,
+                    location = location,
+                    content = content,
+                    paymentStatus = PaymentStatus.PAID,
+                    amount = 0.0,
+                    settlementId = -1
+                )
+                sessionRecordRepository.insert(record)
             } else {
                 // 按次付费
                 val record = SessionRecord(

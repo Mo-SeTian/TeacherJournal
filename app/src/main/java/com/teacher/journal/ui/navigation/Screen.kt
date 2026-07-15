@@ -28,6 +28,9 @@ sealed class Screen(val route: String) {
     data object PackagePurchase : Screen("package_purchase/{studentId}") {
         fun createRoute(studentId: Long) = "package_purchase/$studentId"
     }
+    data object MonthlySettlement : Screen("monthly_settlement/{studentId}") {
+        fun createRoute(studentId: Long) = "monthly_settlement/$studentId"
+    }
 }
 
 /**

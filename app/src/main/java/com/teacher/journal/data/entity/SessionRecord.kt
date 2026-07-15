@@ -51,6 +51,8 @@ data class SessionRecord(
     val amount: Double = 0.0,
     /** 关联的课时包 ID（预付费学生使用，-1 表示不关联） */
     val coursePackageId: Long = -1,
+    /** 关联的月结算 ID（月结算学生使用，-1 表示未结算） */
+    val settlementId: Long = -1,
     /** 创建时间（毫秒时间戳） */
     val createdAt: Long = System.currentTimeMillis()
 )

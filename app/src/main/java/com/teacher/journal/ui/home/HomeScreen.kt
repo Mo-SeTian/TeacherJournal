@@ -97,6 +97,22 @@ fun HomeScreen(
                     }
                 }
 
+                // 月结算待收款提醒
+                if (uiState.unpaidSettlements.isNotEmpty()) {
+                    item {
+                        SectionHeader(
+                            title = "📅 月结算待收款（${uiState.unpaidSettlements.size}笔）",
+                            icon = Icons.Filled.DateRange
+                        )
+                    }
+                    items(uiState.unpaidSettlements) { item ->
+                        UnpaidSettlementHomeCard(
+                            item = item,
+                            onClick = { onNavigateToStudentDetail(item.settlement.studentId) }
+                        )
+                    }
+                }
+
                 // 课时不足提醒
                 if (uiState.lowSessionStudents.isNotEmpty()) {
                     item {
@@ -293,6 +309,45 @@ private fun UnpaidRecordCard(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text("标记已收费", style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnpaidSettlementHomeCard(
+    item: UnpaidSettlementItem,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = StatusUnpaid.copy(alpha = 0.08f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.DateRange,
+                contentDescription = null,
+                tint = StatusUnpaid,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${item.studentName} · ${item.settlement.year}年${item.settlement.month + 1}月",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = TextPrimary
+                )
+                Text(
+                    text = "${item.settlement.sessionCount} 次课 · ¥${String.format("%.0f", item.settlement.totalAmount)} 待收款",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
             }
         }
     }

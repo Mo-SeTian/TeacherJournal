@@ -44,6 +44,15 @@ class SessionRecordRepository @Inject constructor(
     suspend fun updatePaymentStatus(id: Long, status: PaymentStatus) =
         sessionRecordDao.updatePaymentStatus(id, status)
 
+    suspend fun getUnsettledRecords(studentId: Long): List<SessionRecord> =
+        sessionRecordDao.getUnsettledRecords(studentId)
+
+    suspend fun getUnsettledRecordsForMonth(studentId: Long, startOfMonth: Long, endOfMonth: Long): List<SessionRecord> =
+        sessionRecordDao.getUnsettledRecordsForMonth(studentId, startOfMonth, endOfMonth)
+
+    suspend fun updateSettlementId(recordIds: List<Long>, settlementId: Long) =
+        sessionRecordDao.updateSettlementId(recordIds, settlementId)
+
     suspend fun delete(record: SessionRecord) =
         sessionRecordDao.delete(record)
 }

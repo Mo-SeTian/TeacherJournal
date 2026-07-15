@@ -206,6 +206,7 @@ fun PaymentTypeChip(paymentType: PaymentType) {
     val (label, color) = when (paymentType) {
         PaymentType.PREPAID -> "预付费" to Secondary
         PaymentType.PER_SESSION -> "按次付" to Tertiary
+        PaymentType.MONTHLY -> "月结算" to Primary
     }
     Surface(
         shape = MaterialTheme.shapes.small,

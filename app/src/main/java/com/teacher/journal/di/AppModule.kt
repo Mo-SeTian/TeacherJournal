@@ -22,7 +22,8 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "teacher_journal.db"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
@@ -36,4 +37,7 @@ object AppModule {
 
     @Provides
     fun provideEarningDao(db: AppDatabase): EarningDao = db.earningDao()
+
+    @Provides
+    fun provideMonthlySettlementDao(db: AppDatabase): MonthlySettlementDao = db.monthlySettlementDao()
 }

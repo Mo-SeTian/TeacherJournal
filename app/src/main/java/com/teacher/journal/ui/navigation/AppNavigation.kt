@@ -17,6 +17,7 @@ import com.teacher.journal.ui.home.HomeScreen
 import com.teacher.journal.ui.package.PackagePurchaseScreen
 import com.teacher.journal.ui.session.SessionListScreen
 import com.teacher.journal.ui.session.SessionRecordScreen
+import com.teacher.journal.ui.settlement.MonthlySettlementScreen
 import com.teacher.journal.ui.student.StudentDetailScreen
 import com.teacher.journal.ui.student.StudentEditScreen
 import com.teacher.journal.ui.student.StudentListScreen
@@ -116,6 +117,9 @@ fun AppNavigation() {
                     onNavigateToPackagePurchase = {
                         navController.navigate(Screen.PackagePurchase.createRoute(studentId))
                     },
+                    onNavigateToMonthlySettlement = {
+                        navController.navigate(Screen.MonthlySettlement.createRoute(studentId))
+                    },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -152,6 +156,13 @@ fun AppNavigation() {
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-        }
-    }
-}
+            composable(
+                route = Screen.MonthlySettlement.route,
+                arguments = listOf(navArgument("studentId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val studentId = backStackEntry.arguments?.getLong("studentId") ?: return@composable
+                MonthlySettlementScreen(
+                    studentId = studentId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
