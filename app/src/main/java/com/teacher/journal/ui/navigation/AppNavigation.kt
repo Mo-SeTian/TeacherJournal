@@ -14,7 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.teacher.journal.ui.home.HomeScreen
-import com.teacher.journal.ui.package.PackagePurchaseScreen
+import com.teacher.journal.ui.coursepackage.PackagePurchaseScreen
 import com.teacher.journal.ui.session.SessionListScreen
 import com.teacher.journal.ui.session.SessionRecordScreen
 import com.teacher.journal.ui.settlement.MonthlySettlementScreen
@@ -166,3 +166,6 @@ fun AppNavigation() {
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+        }
+    }
+}

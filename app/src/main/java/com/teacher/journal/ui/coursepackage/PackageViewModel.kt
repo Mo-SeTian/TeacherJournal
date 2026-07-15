@@ -1,4 +1,4 @@
-package com.teacher.journal.ui.package
+package com.teacher.journal.ui.coursepackage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 data class PackagePurchaseUiState(
     val studentName: String = "",

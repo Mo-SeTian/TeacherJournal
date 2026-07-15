@@ -182,7 +182,7 @@ private fun StatsRow(
         StatCard(
             modifier = Modifier.weight(1f),
             label = "学生数",
-            value = "$studentCount人",
+            value = "${studentCount}人",
             icon = Icons.Filled.People,
             color = Primary
         )

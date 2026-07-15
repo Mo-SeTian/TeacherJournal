@@ -22,30 +22,33 @@ android {
         }
     }
 
-    signingConfigs {
+        signingConfigs {
         create("ci") {
-            // CI 环境通过环境变量提供签名信息；本地可通过 keystore.properties 文件
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
-            if (keystorePropertiesFile.exists()) {
-                val props = java.util.Properties()
-                props.load(keystorePropertiesFile.inputStream())
-                storeFile = file(props.getProperty("storeFile"))
-                storePassword = props.getProperty("storePassword")
-                keyAlias = props.getProperty("keyAlias")
-                keyPassword = props.getProperty("keyPassword")
+            // 环境变量优先（CI），回退到 keystore.properties 文件（本地）
+            val envStoreFile = System.getenv("KEYSTORE_FILE")
+            if (envStoreFile != null) {
+                storeFile = file(envStoreFile)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS") ?: "teacherjournal"
+                keyPassword = System.getenv("KEY_PASSWORD")
             } else {
-                // 从环境变量获取（GitHub Actions 中使用）
-                val envStoreFile = System.getenv("KEYSTORE_FILE")
-                if (envStoreFile != null) {
-                    storeFile = file(envStoreFile)
-                    storePassword = System.getenv("KEYSTORE_PASSWORD")
-                    keyAlias = System.getenv("KEY_ALIAS") ?: "teacherjournal"
-                    keyPassword = System.getenv("KEY_PASSWORD")
+                val propsFile = rootProject.file("keystore.properties")
+                if (propsFile.exists()) {
+                    // 手动解析 properties 文件，避免 java.util.Properties 在 .kts 中受限
+                    val lines = propsFile.readLines()
+                    val map = lines.filter { it.contains("=") && !it.trimStart().startsWith("#") }
+                        .associate { 
+                            val (k, v) = it.split("=", limit = 2)
+                            k.trim() to v.trim()
+                        }
+                    storeFile = rootProject.file(map["storeFile"] ?: "keystore.properties.jks")
+                    storePassword = map["storePassword"] ?: "android"
+                    keyAlias = map["keyAlias"] ?: "teacherjournal"
+                    keyPassword = map["keyPassword"] ?: "android"
                 }
             }
         }
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
