@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">授业札记</string>
+    <string name="tab_home">首页</string>
+    <string name="tab_students">学生</string>
+    <string name="tab_records">记录</string>
+    <string name="student_count">学生数</string>
+    <string name="remaining_sessions">剩余课时</string>
+    <string name="monthly_income">月收入</string>
+    <string name="pending_payment">待收费提醒</string>
+    <string name="low_sessions_warning">课时不足提醒</string>
+    <string name="recent_records">最近上课</string>
+</resources>
