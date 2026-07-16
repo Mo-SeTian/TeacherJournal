@@ -114,7 +114,7 @@ fun HomeScreen(
                 if (uiState.recentRecords.isEmpty()) {
                     item { EmptyStateCard("暂无上课记录", "点击下方按钮记录第一堂课") }
                 } else {
-                    items(uiState.recentRecords) { record -> RecentRecordCard(record) }
+                    items(uiState.recentRecords) { item -> RecentRecordCard(item) }
                 }
 
                 item { Spacer(Modifier.height(80.dp)) }
@@ -271,7 +271,7 @@ private fun LowSessionCard(item: LowSessionStudentItem, onClick: () -> Unit) {
 
 // ── 最近记录卡片 ──
 @Composable
-private fun RecentRecordCard(record: SessionRecord) {
+private fun RecentRecordCard(item: RecentRecordItem) {
     Card(
         Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -281,25 +281,29 @@ private fun RecentRecordCard(record: SessionRecord) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(Modifier.size(44.dp), shape = RoundedCornerShape(12.dp), color = Blue50) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(DateUtils.formatDateDisplay(record.date), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = Blue600)
+                    Text(DateUtils.formatDateDisplay(item.record.date), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = Blue600)
                 }
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text("${record.startTime} – ${record.endTime}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, color = Gray900)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (record.location.isNotBlank()) {
+                    Text(item.studentName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = Gray900)
+                    Spacer(Modifier.width(6.dp))
+                    Text("${item.record.startTime} – ${item.record.endTime}", style = MaterialTheme.typography.bodySmall, color = Gray500)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (item.record.location.isNotBlank()) {
                         Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Gray400, modifier = Modifier.size(13.dp))
                         Spacer(Modifier.width(2.dp))
-                        Text(record.location, style = MaterialTheme.typography.bodySmall, color = Gray500, maxLines = 1)
+                        Text(item.record.location, style = MaterialTheme.typography.bodySmall, color = Gray500, maxLines = 1)
                     }
-                    if (record.content.isNotBlank()) {
-                        if (record.location.isNotBlank()) { Spacer(Modifier.width(8.dp)) }
-                        Text(record.content, style = MaterialTheme.typography.bodySmall, color = Gray400, maxLines = 1)
+                    if (item.record.content.isNotBlank()) {
+                        if (item.record.location.isNotBlank()) { Spacer(Modifier.width(8.dp)) }
+                        Text(item.record.content, style = MaterialTheme.typography.bodySmall, color = Gray400, maxLines = 1)
                     }
                 }
             }
-            PaymentStatusBadge(record.paymentStatus)
+            PaymentStatusBadge(item.record.paymentStatus)
         }
     }
 }

@@ -23,7 +23,7 @@ data class HomeUiState(
     val unpaidRecords: List<UnpaidRecordItem> = emptyList(),
     val unpaidSettlements: List<UnpaidSettlementItem> = emptyList(),
     val lowSessionStudents: List<LowSessionStudentItem> = emptyList(),
-    val recentRecords: List<SessionRecord> = emptyList(),
+    val recentRecords: List<RecentRecordItem> = emptyList(),
     val isLoading: Boolean = true
 )
 
@@ -42,6 +42,11 @@ data class LowSessionStudentItem(
     val studentName: String,
     val remainingSessions: Int,
     val studentId: Long
+)
+
+data class RecentRecordItem(
+    val record: SessionRecord,
+    val studentName: String
 )
 
 @HiltViewModel
@@ -146,8 +151,19 @@ class HomeViewModel @Inject constructor(
 
             // 最近上课记录
             launch {
-                sessionRecordRepository.getRecentRecords(5).collect { records ->
-                    _uiState.update { it.copy(recentRecords = records, isLoading = false) }
+                combine(
+                    sessionRecordRepository.getRecentRecords(5),
+                    studentRepository.getAllStudents()
+                ) { records, students ->
+                    val studentMap = students.associateBy { it.id }
+                    records.map { record ->
+                        RecentRecordItem(
+                            record = record,
+                            studentName = studentMap[record.studentId]?.name ?: "未知"
+                        )
+                    }
+                }.collect { items ->
+                    _uiState.update { it.copy(recentRecords = items, isLoading = false) }
                 }
             }
         }
