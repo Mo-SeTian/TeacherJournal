@@ -1,7 +1,6 @@
 package com.teacher.journal.ui.theme
 
 import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -10,23 +9,29 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = Primary,
+    primary = Blue600,
     onPrimary = OnPrimary,
-    primaryContainer = PrimaryLight.copy(alpha = 0.3f),
-    onPrimaryContainer = PrimaryDark,
-    secondary = Secondary,
+    primaryContainer = Blue50,
+    onPrimaryContainer = Blue800,
+    secondary = Green600,
     onSecondary = OnSecondary,
-    secondaryContainer = SecondaryLight.copy(alpha = 0.3f),
-    onSecondaryContainer = SecondaryDark,
-    tertiary = Tertiary,
+    secondaryContainer = Green50,
+    onSecondaryContainer = Green700,
+    tertiary = Amber600,
     onTertiary = OnPrimary,
-    background = Background,
-    onBackground = TextPrimary,
-    surface = Surface,
-    onSurface = TextPrimary,
-    surfaceVariant = SurfaceVariant,
-    onSurfaceVariant = TextSecondary,
-    outline = TextTertiary
+    tertiaryContainer = Amber50,
+    onTertiaryContainer = Amber600,
+    error = ErrorRed,
+    errorContainer = ErrorBg,
+    onErrorContainer = ErrorRed,
+    background = Gray50,
+    onBackground = Gray900,
+    surface = SurfaceWhite,
+    onSurface = Gray900,
+    surfaceVariant = Gray100,
+    onSurfaceVariant = Gray600,
+    outline = Gray300,
+    outlineVariant = Gray200
 )
 
 @Composable

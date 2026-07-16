@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.SessionRecord
-import com.teacher.journal.ui.home.PaymentStatusChip
+import com.teacher.journal.ui.home.PaymentStatusBadge
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 
@@ -184,7 +184,7 @@ private fun SessionRecordCard(
             }
 
             Column(horizontalAlignment = Alignment.End) {
-                PaymentStatusChip(record.paymentStatus)
+                PaymentStatusBadge(record.paymentStatus)
                 if (record.paymentStatus == com.teacher.journal.data.entity.PaymentStatus.UNPAID) {
                     Spacer(modifier = Modifier.height(4.dp))
                     TextButton(
