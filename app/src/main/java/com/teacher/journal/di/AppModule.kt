@@ -3,6 +3,7 @@ package com.teacher.journal.di
 import android.content.Context
 import androidx.room.Room
 import com.teacher.journal.data.database.AppDatabase
+import com.teacher.journal.data.database.AppMigrations
 import com.teacher.journal.data.dao.*
 import dagger.Module
 import dagger.Provides
@@ -22,7 +23,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "teacher_journal.db"
-        ).fallbackToDestructiveMigration()
+        ).addMigrations(*AppMigrations.ALL)
             .build()
     }
 
