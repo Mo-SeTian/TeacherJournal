@@ -2,29 +2,29 @@ package com.teacher.journal.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// === 主色调 ===
-val Blue50 = Color(0xFFE3F0FD)
-val Blue100 = Color(0xFFBAD8F9)
-val Blue200 = Color(0xFF8FBFF2)
-val Blue400 = Color(0xFF4D8FD9)
-val Blue500 = Color(0xFF2B6CB0)
-val Blue600 = Color(0xFF235A95)
-val Blue700 = Color(0xFF1B4878)
-val Blue800 = Color(0xFF13365B)
-val Blue900 = Color(0xFF0B243E)
+// === 主色调：柔和蓝（对标书迹风格，温暖不严肃）===
+val Blue50 = Color(0xFFE8F1FB)
+val Blue100 = Color(0xFFC5D9F4)
+val Blue200 = Color(0xFF9DBFEB)
+val Blue400 = Color(0xFF5D94D9)
+val Blue500 = Color(0xFF4A85CC)
+val Blue600 = Color(0xFF3B6FAE)
+val Blue700 = Color(0xFF2D5A92)
+val Blue800 = Color(0xFF1F4576)
+val Blue900 = Color(0xFF12305A)
 
-// === 辅助色 ===
-val Green50 = Color(0xFFE8F5E9)
+// === 辅助色：柔和绿 ===
+val Green50 = Color(0xFFEBF5EC)
 val Green100 = Color(0xFFC8E6C9)
-val Green500 = Color(0xFF43A047)
-val Green600 = Color(0xFF388E3C)
-val Green700 = Color(0xFF2E7D32)
+val Green500 = Color(0xFF4CAF50)
+val Green600 = Color(0xFF43A047)
+val Green700 = Color(0xFF388E3C)
 
-// === 强调色 ===
+// === 强调色：暖橙 ===
 val Amber50 = Color(0xFFFFF8E1)
 val Amber100 = Color(0xFFFFECB3)
-val Amber400 = Color(0xFFFFA726)
-val Amber500 = Color(0xFFFF9800)
+val Amber400 = Color(0xFFFFB74D)
+val Amber500 = Color(0xFFFFA726)
 val Amber600 = Color(0xFFFB8C00)
 
 // === 功能色 ===
@@ -47,7 +47,7 @@ val Gray700 = Color(0xFF424242)
 val Gray800 = Color(0xFF303030)
 val Gray900 = Color(0xFF212121)
 
-// === Material 3 Container 色 ===
+// === Material 3 Container ===
 val PrimaryContainer = Blue50
 val OnPrimaryContainer = Blue800
 val SecondaryContainer = Green50

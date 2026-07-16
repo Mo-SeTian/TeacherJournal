@@ -34,6 +34,8 @@ data class Student(
     val paymentType: PaymentType = PaymentType.PREPAID,
     /** 月薪/月费（月结算模式使用） */
     val monthlyRate: Double = 0.0,
+    /** 每月结算日（1-28，月结算模式使用） */
+    val settlementDay: Int = 1,
     /** 备注 */
     val notes: String = "",
     /** 创建时间（毫秒时间戳） */

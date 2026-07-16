@@ -2,6 +2,7 @@ package com.teacher.journal.ui.student
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +32,7 @@ fun StudentListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text("学生", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Blue600, titleContentColor = OnPrimary),
                 actions = {

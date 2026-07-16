@@ -1,23 +1,35 @@
 package com.teacher.journal.ui.session
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.teacher.journal.data.entity.SessionRecord
+import com.teacher.journal.data.entity.PaymentStatus
 import com.teacher.journal.ui.home.PaymentStatusBadge
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
+
+private val WEEK_LABELS = listOf("一", "二", "三", "四", "五", "六", "日")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,179 +37,144 @@ fun SessionListScreen(
     viewModel: SessionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
+    var selectedDay by remember { mutableStateOf<CalendarDay?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("上课记录", style = MaterialTheme.typography.headlineSmall)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = OnPrimary
-                )
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                title = { Text("上课记录", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = OnPrimary)
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // 月份切换器
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            // 月份切换 + 统计
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                colors = CardDefaults.cardColors(containerColor = Surface),
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { viewModel.previousMonth() }) {
-                        Icon(Icons.Filled.ChevronLeft, contentDescription = "上个月")
+                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { viewModel.previousMonth() }, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Filled.ChevronLeft, "上月", modifier = Modifier.size(22.dp))
                     }
-                    Text(
-                        text = "${uiState.currentYear}年${uiState.currentMonth + 1}月",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    IconButton(onClick = { viewModel.nextMonth() }) {
-                        Icon(Icons.Filled.ChevronRight, contentDescription = "下个月")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("${uiState.currentYear}年${uiState.currentMonth + 1}月", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("${uiState.totalMonthSessions} 次课 · ¥${String.format("%.0f", uiState.totalMonthAmount)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    IconButton(onClick = { viewModel.nextMonth() }, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Filled.ChevronRight, "下月", modifier = Modifier.size(22.dp))
                     }
                 }
             }
 
             if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Primary)
-                }
-            } else if (uiState.records.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.Filled.EventBusy,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = TextTertiary
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("本月暂无上课记录", color = TextSecondary)
-                    }
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // 按日期分组显示
-                    val groupedByDate = uiState.records.groupBy { it.date }
-                    groupedByDate.forEach { (date, records) ->
-                        item {
-                            Text(
-                                text = "${DateUtils.formatDateDisplay(date)} ${DateUtils.getWeekday(date)}",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Primary,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                            )
-                        }
-                        items(records) { record ->
-                            SessionRecordCard(
-                                record = record,
-                                studentName = uiState.students[record.studentId]?.name ?: "未知",
-                                onMarkPaid = {
-                                    if (record.paymentStatus == com.teacher.journal.data.entity.PaymentStatus.UNPAID) {
-                                        viewModel.markAsPaid(record.id)
-                                    }
+                    // 星期头
+                    item {
+                        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            WEEK_LABELS.forEachIndexed { i, label ->
+                                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                                    Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
+                                        color = if (i == 6) ErrorRed else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center)
                                 }
-                            )
+                            }
                         }
                     }
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
+
+                    // 日历网格
+                    val days = uiState.calendarDays
+                    val rows = days.chunked(7)
+                    items(rows) { week ->
+                        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                            week.forEach { day ->
+                                Box(Modifier.weight(1f).aspectRatio(0.85f).padding(2.dp)) {
+                                    if (day.dayOfMonth > 0) {
+                                        CalendarDayCell(day, selectedDay == day) {
+                                            selectedDay = if (selectedDay == day) null else day
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+
+    // 点击日期弹出详情
+    selectedDay?.let { day ->
+        AlertDialog(
+            onDismissRequest = { selectedDay = null },
+            title = { Text(DateUtils.formatDateFull(day.date), fontWeight = FontWeight.Bold) },
+            text = {
+                if (day.sessions.isEmpty()) {
+                    Text("当天没有上课记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("${day.sessionCount} 次课 · ¥${String.format("%.0f", day.totalAmount)}", fontWeight = FontWeight.Medium, color = Primary)
+                        day.sessions.forEach { session ->
+                            Card(
+                                Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                Column(Modifier.padding(10.dp)) {
+                                    Text("${uiState.students[session.studentId]?.name ?: "未知"} · ${session.startTime} – ${session.endTime}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                                    if (session.location.isNotBlank()) Text(session.location, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    if (session.amount > 0) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("¥${String.format("%.0f", session.amount)}", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = Tertiary)
+                                            Spacer(Modifier.width(8.dp))
+                                            PaymentStatusBadge(session.paymentStatus)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { selectedDay = null }) { Text("关闭") } }
+        )
+    }
 }
 
 @Composable
-private fun SessionRecordCard(
-    record: SessionRecord,
-    studentName: String,
-    onMarkPaid: () -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = studentName,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Medium,
-                        color = TextPrimary
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "${record.startTime}-${record.endTime}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
-                }
-                if (record.location.isNotBlank() || record.content.isNotBlank()) {
-                    Text(
-                        text = listOfNotNull(
-                            record.location.takeIf { it.isNotBlank() },
-                            record.content.takeIf { it.isNotBlank() }
-                        ).joinToString(" · "),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextTertiary
-                    )
-                }
-                if (record.amount > 0) {
-                    Text(
-                        text = "¥${String.format("%.0f", record.amount)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Tertiary
-                    )
-                }
-            }
+private fun CalendarDayCell(day: CalendarDay, selected: Boolean, onClick: () -> Unit) {
+    val hasSessions = day.sessionCount > 0
+    val bgColor = when {
+        selected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+        hasSessions -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        else -> Color.Transparent
+    }
+    val textColor = when {
+        selected -> MaterialTheme.colorScheme.primary
+        hasSessions -> MaterialTheme.colorScheme.onSurface
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    }
 
-            Column(horizontalAlignment = Alignment.End) {
-                PaymentStatusBadge(record.paymentStatus)
-                if (record.paymentStatus == com.teacher.journal.data.entity.PaymentStatus.UNPAID) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    TextButton(
-                        onClick = onMarkPaid,
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text(
-                            "标记已收费",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = StatusPaid
-                        )
-                    }
-                }
+    Box(
+        Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)).background(bgColor).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text("${day.dayOfMonth}", fontSize = 13.sp, fontWeight = if (hasSessions) FontWeight.Bold else FontWeight.Normal, color = textColor)
+            if (hasSessions && day.totalAmount > 0) {
+                Text("¥${String.format("%.0f", day.totalAmount)}", fontSize = 9.sp, color = Tertiary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            } else if (hasSessions) {
+                Box(Modifier.size(4.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary))
             }
         }
     }

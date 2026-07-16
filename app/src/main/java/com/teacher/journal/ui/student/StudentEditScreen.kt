@@ -1,6 +1,7 @@
 package com.teacher.journal.ui.student
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ fun StudentEditScreen(
     var location by remember { mutableStateOf("") }
     var paymentType by remember { mutableStateOf(PaymentType.PREPAID) }
     var monthlyRate by remember { mutableStateOf("") }
+    var settlementDay by remember { mutableStateOf("1") }
     var notes by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf(false) }
 
@@ -51,13 +53,14 @@ fun StudentEditScreen(
             location = s.location
             paymentType = s.paymentType
             monthlyRate = if (s.monthlyRate > 0) String.format("%.0f", s.monthlyRate) else ""
+            settlementDay = s.settlementDay.toString()
             notes = s.notes
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text(if (isEditing) "编辑学生" else "添加学生") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -186,6 +189,20 @@ fun StudentEditScreen(
                         focusedLabelColor = Primary
                     )
                 )
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = settlementDay,
+                    onValueChange = { s -> s.toIntOrNull()?.let { v -> if (v in 1..28) settlementDay = v.toString() } },
+                    label = { Text("每月结算日（1-28）") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    suffix = { Text("日") },
+                    supportingText = { Text("每月此日自动提醒创建月结算") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Primary,
+                        focusedLabelColor = Primary
+                    )
+                )
             }
 
             // 备注
@@ -219,6 +236,7 @@ fun StudentEditScreen(
                             location = location.trim(),
                             paymentType = paymentType,
                             monthlyRate = monthlyRate.toDoubleOrNull() ?: 0.0,
+                            settlementDay = settlementDay.toIntOrNull() ?: 1,
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     } else {
@@ -229,6 +247,7 @@ fun StudentEditScreen(
                             location = location.trim(),
                             paymentType = paymentType,
                             monthlyRate = monthlyRate.toDoubleOrNull() ?: 0.0,
+                            settlementDay = settlementDay.toIntOrNull() ?: 1,
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     }

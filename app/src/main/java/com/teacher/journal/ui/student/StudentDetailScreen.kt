@@ -2,6 +2,7 @@ package com.teacher.journal.ui.student
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,7 +40,7 @@ fun StudentDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text(uiState.student?.name ?: "学生详情", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = OnPrimary) } },
                 actions = {

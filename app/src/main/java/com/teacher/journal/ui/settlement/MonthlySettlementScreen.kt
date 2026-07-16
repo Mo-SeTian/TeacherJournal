@@ -1,6 +1,7 @@
 package com.teacher.journal.ui.settlement
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -39,7 +40,7 @@ fun MonthlySettlementScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text("月结算管理") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {

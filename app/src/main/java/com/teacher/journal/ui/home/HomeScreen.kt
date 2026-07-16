@@ -3,6 +3,7 @@ package com.teacher.journal.ui.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -39,7 +40,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = OnPrimary, modifier = Modifier.size(24.dp))

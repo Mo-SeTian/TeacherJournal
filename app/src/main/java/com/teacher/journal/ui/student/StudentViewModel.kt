@@ -121,6 +121,7 @@ class StudentViewModel @Inject constructor(
         location: String,
         paymentType: PaymentType,
         monthlyRate: Double,
+        settlementDay: Int,
         notes: String,
         onComplete: (Long) -> Unit
     ) {
@@ -132,6 +133,7 @@ class StudentViewModel @Inject constructor(
                 location = location,
                 paymentType = paymentType,
                 monthlyRate = monthlyRate,
+                settlementDay = settlementDay,
                 notes = notes
             )
             val id = studentRepository.insert(student)
@@ -147,6 +149,7 @@ class StudentViewModel @Inject constructor(
         location: String,
         paymentType: PaymentType,
         monthlyRate: Double,
+        settlementDay: Int,
         notes: String,
         onComplete: () -> Unit
     ) {
@@ -160,6 +163,7 @@ class StudentViewModel @Inject constructor(
                     location = location,
                     paymentType = paymentType,
                     monthlyRate = monthlyRate,
+                    settlementDay = settlementDay,
                     notes = notes
                 )
             )

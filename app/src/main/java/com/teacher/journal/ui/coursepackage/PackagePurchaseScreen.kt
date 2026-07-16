@@ -1,6 +1,7 @@
 package com.teacher.journal.ui.coursepackage
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,7 +36,7 @@ fun PackagePurchaseScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text("购买课时") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
