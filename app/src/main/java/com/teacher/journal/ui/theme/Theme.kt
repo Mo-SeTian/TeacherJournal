@@ -4,23 +4,24 @@ import android.app.Activity
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
-    primary = Primary600,
-    onPrimary = OnPrimary,
-    primaryContainer = PrimaryContainer,
-    onPrimaryContainer = OnPrimaryContainer,
-    secondary = Green600,
-    onSecondary = OnSecondary,
-    secondaryContainer = SecondaryContainer,
-    onSecondaryContainer = OnSecondaryContainer,
-    tertiary = Peach600,
-    onTertiary = OnPrimary,
-    tertiaryContainer = TertiaryContainer,
-    onTertiaryContainer = OnTertiaryContainer,
+fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
+    primary = preset.primary,
+    onPrimary = Color.White,
+    primaryContainer = preset.primaryContainer,
+    onPrimaryContainer = preset.onPrimaryContainer,
+    secondary = preset.secondary,
+    onSecondary = Color.White,
+    secondaryContainer = preset.secondaryContainer,
+    onSecondaryContainer = preset.onPrimaryContainer,
+    tertiary = preset.tertiary,
+    onTertiary = Color.White,
+    tertiaryContainer = preset.tertiaryContainer,
+    onTertiaryContainer = preset.onPrimaryContainer,
     error = ErrorRed,
     errorContainer = ErrorBg,
     onErrorContainer = ErrorRed,
@@ -36,15 +37,16 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun TeacherJournalTheme(
+    themePreset: ThemePreset = ThemePresets[0],
     content: @Composable () -> Unit
 ) {
-    val colorScheme = LightColorScheme
+    val colorScheme = themePresetColorScheme(themePreset)
     val view = LocalView.current
 
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = themePreset.primaryDark.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }

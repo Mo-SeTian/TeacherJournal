@@ -34,6 +34,7 @@ import com.teacher.journal.util.DateUtils
 fun HomeScreen(
     onNavigateToStudentDetail: (Long) -> Unit,
     onNavigateToSessionRecord: () -> Unit,
+    onNavigateToSettings: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -53,7 +54,12 @@ fun HomeScreen(
                         Text("授业札记", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary600.copy(alpha = 0.92f), titleContentColor = OnPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary600, titleContentColor = OnPrimary),
+                actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = "设置", tint = OnPrimary)
+                    }
+                }
             )
         },
         floatingActionButton = {

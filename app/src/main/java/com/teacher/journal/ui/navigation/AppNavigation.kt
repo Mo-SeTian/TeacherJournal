@@ -81,6 +81,9 @@ fun AppNavigation() {
                     },
                     onNavigateToSessionRecord = {
                         navController.navigate(Screen.SessionRecord.createRoute())
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(Screen.Settings.route)
                     }
                 )
             }
@@ -162,6 +165,11 @@ fun AppNavigation() {
                 val studentId = backStackEntry.arguments?.getLong("studentId") ?: return@composable
                 MonthlySettlementScreen(
                     studentId = studentId,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Settings.route) {
+                com.teacher.journal.ui.settings.SettingsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
