@@ -158,6 +158,7 @@ fun SessionListScreen(
 @Composable
 private fun CalendarDayCell(day: CalendarDay, selected: Boolean, onClick: () -> Unit) {
     val hasSessions = day.sessionCount > 0
+    val hasAmount = day.totalAmount > 0
     val bgColor = when {
         selected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
         hasSessions -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
@@ -174,11 +175,12 @@ private fun CalendarDayCell(day: CalendarDay, selected: Boolean, onClick: () -> 
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text("${day.dayOfMonth}", fontSize = 13.sp, fontWeight = if (hasSessions) FontWeight.Bold else FontWeight.Normal, color = textColor)
-            if (hasSessions && day.totalAmount > 0) {
-                Text("¥${String.format("%.0f", day.totalAmount)}", fontSize = 9.sp, color = Tertiary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            } else if (hasSessions) {
-                Box(Modifier.size(4.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary))
+            Text("${day.dayOfMonth}", fontSize = 12.sp, fontWeight = if (hasSessions) FontWeight.Bold else FontWeight.Normal, color = textColor)
+            if (hasSessions) {
+                Text("${day.sessionCount}次", fontSize = 9.sp, fontWeight = FontWeight.Medium, color = textColor.copy(alpha = 0.8f))
+                if (hasAmount) {
+                    Text("¥${String.format("%.0f", day.totalAmount)}", fontSize = 8.sp, color = Tertiary, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
             }
         }
     }
