@@ -39,6 +39,11 @@ fun SessionListScreen(
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
     var selectedDay by remember { mutableStateOf<CalendarDay?>(null) }
 
+    // 切回月视图时自动刷新
+    LaunchedEffect(Unit) {
+        viewModel.loadRecordsForMonth(uiState.currentYear, uiState.currentMonth)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

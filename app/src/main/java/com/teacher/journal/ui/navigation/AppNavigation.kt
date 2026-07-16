@@ -61,7 +61,6 @@ fun AppNavigation() {
                                         saveState = true
                                     }
                                     launchSingleTop = true
-                                    restoreState = true
                                 }
                             }
                         )

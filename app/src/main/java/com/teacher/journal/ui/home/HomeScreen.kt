@@ -37,6 +37,10 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // 切回首页时自动刷新
+    LaunchedEffect(Unit) {
+        viewModel.loadDashboard()
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
