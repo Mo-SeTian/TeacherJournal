@@ -103,7 +103,7 @@ fun SessionListScreen(
                     items(rows) { week ->
                         Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
                             week.forEach { day ->
-                                Box(Modifier.weight(1f).aspectRatio(0.85f).padding(2.dp)) {
+                                Box(Modifier.weight(1f).aspectRatio(1.15f).padding(1.dp)) {
                                     if (day.dayOfMonth > 0) {
                                         CalendarDayCell(day, selectedDay == day) {
                                             selectedDay = if (selectedDay == day) null else day

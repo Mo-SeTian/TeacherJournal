@@ -144,11 +144,11 @@ fun StudentEditScreen(
                 style = MaterialTheme.typography.titleSmall,
                 color = TextPrimary
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = paymentType == PaymentType.PREPAID,
                     onClick = { paymentType = PaymentType.PREPAID },
-                    label = { Text("📦 预付费（课时包）") },
+                    label = { Text("课时包") },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Primary.copy(alpha = 0.15f),
                         selectedLabelColor = Primary
@@ -157,7 +157,7 @@ fun StudentEditScreen(
                 FilterChip(
                     selected = paymentType == PaymentType.PER_SESSION,
                     onClick = { paymentType = PaymentType.PER_SESSION },
-                    label = { Text("💰 按次付费") },
+                    label = { Text("按次付") },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Tertiary.copy(alpha = 0.15f),
                         selectedLabelColor = Tertiary
@@ -166,7 +166,7 @@ fun StudentEditScreen(
                 FilterChip(
                     selected = paymentType == PaymentType.MONTHLY,
                     onClick = { paymentType = PaymentType.MONTHLY },
-                    label = { Text("📅 月结算") },
+                    label = { Text("月结算") },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Secondary.copy(alpha = 0.15f),
                         selectedLabelColor = Secondary
