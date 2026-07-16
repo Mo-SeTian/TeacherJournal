@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.Student
+import androidx.compose.ui.graphics.Color
 import com.teacher.journal.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,10 +35,10 @@ fun StudentListScreen(
         topBar = {
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text("学生", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = MaterialTheme.colorScheme.onSurface),
                 actions = {
                     IconButton(onClick = onNavigateToAdd) {
-                        Icon(Icons.Filled.PersonAdd, contentDescription = "添加学生", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Filled.PersonAdd, contentDescription = "添加学生", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             )

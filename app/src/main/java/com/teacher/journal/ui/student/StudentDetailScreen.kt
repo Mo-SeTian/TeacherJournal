@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.*
 import com.teacher.journal.ui.home.PaymentStatusBadge
+import androidx.compose.ui.graphics.Color
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 
@@ -42,12 +43,12 @@ fun StudentDetailScreen(
         topBar = {
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text(uiState.student?.name ?: "学生详情", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.onPrimary) } },
+                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary) } },
                 actions = {
-                    IconButton(onClick = onNavigateToEdit) { Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.onPrimary) }
-                    IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.onPrimary) }
+                    IconButton(onClick = onNavigateToEdit) { Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.primary) }
+                    IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.primary) }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = MaterialTheme.colorScheme.onSurface)
             )
         }
     ) { padding ->
@@ -165,7 +166,7 @@ private fun RemainingSessionsCard(remaining: Int, onBuy: () -> Unit) {
             Text("剩余课时", style = MaterialTheme.typography.labelMedium, color = Gray600)
             Text("$remaining 次", style = MaterialTheme.typography.displayLarge, fontWeight = FontWeight.Bold, color = Blue700)
             Spacer(Modifier.height(12.dp))
-            Button(onClick = onBuy, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary), shape = RoundedCornerShape(12.dp)) {
+            Button(onClick = onBuy, colors = ButtonDefaults.buttonColors(containerColor = Color.White), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("购买课时")

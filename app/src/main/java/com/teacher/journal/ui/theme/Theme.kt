@@ -25,14 +25,14 @@ fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
     error = ErrorRed,
     errorContainer = ErrorBg,
     onErrorContainer = ErrorRed,
-    background = Gray50,
+    background = Color.White,
     onBackground = Gray900,
-    surface = SurfaceContainer,
+    surface = Color.White,
     onSurface = Gray900,
-    surfaceVariant = SurfaceVariant,
+    surfaceVariant = Color.White.copy(alpha = 0.9f),
     onSurfaceVariant = Gray600,
-    outline = Gray300,
-    outlineVariant = OutlineVariant
+    outline = Gray200,
+    outlineVariant = Gray100
 )
 
 @Composable
@@ -46,8 +46,8 @@ fun TeacherJournalTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            window.statusBarColor = Color.White.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }
 

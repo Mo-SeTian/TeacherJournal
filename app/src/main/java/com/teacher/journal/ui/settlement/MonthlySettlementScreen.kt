@@ -19,6 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.MonthlySettlement
 import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.SessionRecord
+import androidx.compose.ui.graphics.Color
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 import java.util.*
@@ -44,12 +45,12 @@ fun MonthlySettlementScreen(
                 title = { Text("月结算管理") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = Color.White,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.Student
+import androidx.compose.ui.graphics.Color
 import com.teacher.journal.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -64,12 +65,12 @@ fun StudentEditScreen(
                 title = { Text(if (isEditing) "编辑学生" else "添加学生") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = Color.White,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -253,7 +254,7 @@ fun StudentEditScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
                 Text(
                     if (isEditing) "保存修改" else "添加学生",

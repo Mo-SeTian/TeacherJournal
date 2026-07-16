@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.data.entity.PaymentStatus
 import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.Student
+import androidx.compose.ui.graphics.Color
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 import java.text.SimpleDateFormat
@@ -72,12 +73,12 @@ fun SessionRecordScreen(
                 title = { Text("记录上课") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = Color.White,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -312,7 +313,7 @@ fun SessionRecordScreen(
                     )
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
                 Text("保存记录", style = MaterialTheme.typography.titleSmall)
             }

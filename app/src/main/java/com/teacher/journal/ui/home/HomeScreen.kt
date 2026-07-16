@@ -44,20 +44,19 @@ fun HomeScreen(
     }
 
     Scaffold(
-        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                         Spacer(Modifier.width(10.dp))
                         Text("授业札记", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = MaterialTheme.colorScheme.onSurface),
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Filled.Settings, contentDescription = "设置", tint = MaterialTheme.colorScheme.onPrimary)
+                        Icon(Icons.Filled.Settings, contentDescription = "设置", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             )
@@ -65,7 +64,7 @@ fun HomeScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToSessionRecord,
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color.White,
                 contentColor = OnPrimary,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("记录上课") }
@@ -77,9 +76,6 @@ fun HomeScreen(
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
-            Box(modifier = Modifier.fillMaxSize().background(
-                Brush.verticalGradient(listOf(IridescentLavender.copy(alpha = 0.5f), IridescentBlue.copy(alpha = 0.3f), Gray50))
-            )) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
@@ -148,7 +144,6 @@ fun HomeScreen(
                     }
                 }
             }
-            }
         }
     }
 }
@@ -156,19 +151,14 @@ fun HomeScreen(
 // ── ① HeroSummaryWidget ──
 @Composable
 private fun HeroSummaryWidget(unpaidCount: Int, settlementCount: Int, lowSessionCount: Int, monthlyIncome: Double) {
-    val colorScheme = MaterialTheme.colorScheme
-    val gradient = remember {
-        Brush.verticalGradient(listOf(IridescentLavender, IridescentBlue, Color.White))
-    }
     val hasAlert = unpaidCount > 0 || settlementCount > 0 || lowSessionCount > 0
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Box(Modifier.fillMaxWidth().background(gradient)) {
-            Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(42.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
                         Icon(Icons.Filled.AutoGraph, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -198,7 +188,6 @@ private fun HeroSummaryWidget(unpaidCount: Int, settlementCount: Int, lowSession
                         if (lowSessionCount > 0) HeroMetric("课时不足", "$lowSessionCount", ErrorRed)
                     }
                 }
-            }
         }
     }
 }

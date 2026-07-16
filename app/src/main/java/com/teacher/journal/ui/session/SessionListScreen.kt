@@ -49,7 +49,7 @@ fun SessionListScreen(
             TopAppBar(
                 windowInsets = WindowInsets(0, 0, 0, 0),
                 title = { Text("上课记录", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = MaterialTheme.colorScheme.onSurface)
             )
         }
     ) { padding ->
