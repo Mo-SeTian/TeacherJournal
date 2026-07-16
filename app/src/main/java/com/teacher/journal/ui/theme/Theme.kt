@@ -11,27 +11,27 @@ import androidx.core.view.WindowCompat
 private val LightColorScheme = lightColorScheme(
     primary = Blue600,
     onPrimary = OnPrimary,
-    primaryContainer = Blue50,
-    onPrimaryContainer = Blue800,
+    primaryContainer = PrimaryContainer,
+    onPrimaryContainer = OnPrimaryContainer,
     secondary = Green600,
     onSecondary = OnSecondary,
-    secondaryContainer = Green50,
-    onSecondaryContainer = Green700,
+    secondaryContainer = SecondaryContainer,
+    onSecondaryContainer = OnSecondaryContainer,
     tertiary = Amber600,
     onTertiary = OnPrimary,
-    tertiaryContainer = Amber50,
-    onTertiaryContainer = Amber600,
+    tertiaryContainer = TertiaryContainer,
+    onTertiaryContainer = OnTertiaryContainer,
     error = ErrorRed,
     errorContainer = ErrorBg,
     onErrorContainer = ErrorRed,
     background = Gray50,
     onBackground = Gray900,
-    surface = SurfaceWhite,
+    surface = SurfaceContainer,
     onSurface = Gray900,
-    surfaceVariant = Gray100,
+    surfaceVariant = SurfaceVariant,
     onSurfaceVariant = Gray600,
     outline = Gray300,
-    outlineVariant = Gray200
+    outlineVariant = OutlineVariant
 )
 
 @Composable

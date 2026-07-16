@@ -1,14 +1,14 @@
 package com.teacher.journal.ui.home
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.PaymentStatus
-import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 
@@ -43,26 +42,18 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Filled.MenuBook,
-                            contentDescription = null,
-                            tint = OnPrimary,
-                            modifier = Modifier.size(26.dp)
-                        )
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = OnPrimary, modifier = Modifier.size(24.dp))
                         Spacer(Modifier.width(10.dp))
                         Text("授业札记", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Blue600,
-                    titleContentColor = OnPrimary
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = OnPrimary)
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToSessionRecord,
-                containerColor = Blue600,
+                containerColor = Primary,
                 contentColor = OnPrimary,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("记录上课") }
@@ -71,97 +62,176 @@ fun HomeScreen(
     ) { padding ->
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Blue600)
+                CircularProgressIndicator(color = Primary)
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // 统计卡片
-                item { StatsRow(uiState.studentCount, uiState.totalRemainingSessions, uiState.monthlyIncome) }
+                // ① Hero 摘要卡片
+                item(key = "hero") {
+                    HeroSummaryWidget(
+                        unpaidCount = uiState.unpaidRecords.size,
+                        settlementCount = uiState.unpaidSettlements.size,
+                        lowSessionCount = uiState.lowSessionStudents.size,
+                        monthlyIncome = uiState.monthlyIncome
+                    )
+                }
 
-                // 待收费提醒
+                // ② 统计概览行
+                item(key = "stats") {
+                    OverviewRow(
+                        studentCount = uiState.studentCount,
+                        remainingSessions = uiState.totalRemainingSessions,
+                        monthlyIncome = uiState.monthlyIncome
+                    )
+                }
+
+                // ③ 待收费提醒
                 if (uiState.unpaidRecords.isNotEmpty()) {
-                    item { SectionHeader("待收费提醒", uiState.unpaidRecords.size.toString(), WarningOrange) }
-                    items(uiState.unpaidRecords) { item ->
-                        UnpaidRecordCard(item, { viewModel.markAsPaid(item.record.id) }, { onNavigateToStudentDetail(item.record.studentId) })
+                    item(key = "pending-header") {
+                        WidgetHeader("待收费提醒", Icons.Outlined.Payments, WarningOrange, "${uiState.unpaidRecords.size} 笔")
+                    }
+                    items(uiState.unpaidRecords, key = { "pending-${it.record.id}" }) { item ->
+                        PendingPaymentCard(item, { viewModel.markAsPaid(item.record.id) }, { onNavigateToStudentDetail(item.record.studentId) })
                     }
                 }
 
-                // 月结算待收款
+                // ④ 月结算待收款
                 if (uiState.unpaidSettlements.isNotEmpty()) {
-                    item { SectionHeader("月结算待收款", uiState.unpaidSettlements.size.toString(), Amber600) }
-                    items(uiState.unpaidSettlements) { item ->
-                        UnpaidSettlementHomeCard(item, { onNavigateToStudentDetail(item.settlement.studentId) })
+                    item(key = "settlement-header") {
+                        WidgetHeader("月结算待收款", Icons.Outlined.DateRange, Amber600, "${uiState.unpaidSettlements.size} 笔")
+                    }
+                    items(uiState.unpaidSettlements, key = { "settle-${it.settlement.id}" }) { item ->
+                        SettlementWidgetCard(item, { onNavigateToStudentDetail(item.settlement.studentId) })
                     }
                 }
 
-                // 课时不足
+                // ⑤ 课时不足
                 if (uiState.lowSessionStudents.isNotEmpty()) {
-                    item { SectionHeader("课时不足提醒", uiState.lowSessionStudents.size.toString(), ErrorRed) }
-                    items(uiState.lowSessionStudents) { item ->
-                        LowSessionCard(item, { onNavigateToStudentDetail(item.studentId) })
+                    item(key = "low-header") {
+                        WidgetHeader("课时不足提醒", Icons.Outlined.Warning, ErrorRed, "${uiState.lowSessionStudents.size} 人")
+                    }
+                    items(uiState.lowSessionStudents, key = { "low-${it.studentId}" }) { item ->
+                        LowSessionWidgetCard(item, { onNavigateToStudentDetail(item.studentId) })
                     }
                 }
 
-                // 最近记录
-                item { SectionHeader("最近上课", null, Blue600) }
-                if (uiState.recentRecords.isEmpty()) {
-                    item { EmptyStateCard("暂无上课记录", "点击下方按钮记录第一堂课") }
-                } else {
-                    items(uiState.recentRecords) { item -> RecentRecordCard(item) }
+                // ⑥ 最近上课
+                item(key = "recent-header") {
+                    WidgetHeader("最近上课", Icons.Outlined.Schedule, Primary, null)
                 }
-
-                item { Spacer(Modifier.height(80.dp)) }
+                if (uiState.recentRecords.isEmpty()) {
+                    item(key = "recent-empty") {
+                        EmptyWidget("暂无上课记录", "点击下方按钮记录第一堂课")
+                    }
+                } else {
+                    items(uiState.recentRecords, key = { "recent-${it.record.id}" }) { item ->
+                        RecentRecordWidgetCard(item)
+                    }
+                }
             }
         }
     }
 }
 
-// ── 统计卡片行 ──
+// ── ① HeroSummaryWidget ──
 @Composable
-private fun StatsRow(studentCount: Int, remainingSessions: Int, monthlyIncome: Double) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        StatCard(Modifier.weight(1f), "学生总数", "$studentCount", Blue50 to Blue100, Blue600, Icons.Outlined.People)
-        StatCard(Modifier.weight(1f), "剩余课时", "$remainingSessions", Green50 to Green100, Green600, Icons.Outlined.Book)
-        StatCard(Modifier.weight(1f), "本月收入", "¥${String.format("%.0f", monthlyIncome)}", Amber50 to Amber100, Amber600, Icons.Outlined.Payments)
+private fun HeroSummaryWidget(unpaidCount: Int, settlementCount: Int, lowSessionCount: Int, monthlyIncome: Double) {
+    val colorScheme = MaterialTheme.colorScheme
+    val gradient = remember(colorScheme.primaryContainer, colorScheme.surface) {
+        Brush.verticalGradient(listOf(colorScheme.primaryContainer, colorScheme.surface))
+    }
+    val hasAlert = unpaidCount > 0 || settlementCount > 0 || lowSessionCount > 0
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Box(Modifier.fillMaxWidth().background(gradient)) {
+            Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(42.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.AutoGraph, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text("教学仪表盘", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (hasAlert) "有 ${unpaidCount + settlementCount + lowSessionCount} 项待处理" else "一切就绪",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // 本月收入大字
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("¥${String.format("%.0f", monthlyIncome)}", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text("本月收入", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+
+                // 三项指标行
+                if (hasAlert) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        if (unpaidCount > 0) HeroMetric("待收费", "$unpaidCount", WarningOrange)
+                        if (settlementCount > 0) HeroMetric("月结算", "$settlementCount", Amber600)
+                        if (lowSessionCount > 0) HeroMetric("课时不足", "$lowSessionCount", ErrorRed)
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun StatCard(modifier: Modifier, label: String, value: String, gradient: Pair<Color, Color>, accent: Color, icon: ImageVector) {
+private fun HeroMetric(label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = color)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+// ── ② OverviewRow ──
+@Composable
+private fun OverviewRow(studentCount: Int, remainingSessions: Int, monthlyIncome: Double) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        StatWidgetCard(Modifier.weight(1f), "学生总数", "$studentCount", Icons.Outlined.People, MaterialTheme.colorScheme.primary)
+        StatWidgetCard(Modifier.weight(1f), "剩余课时", "$remainingSessions", Icons.Outlined.Book, Green600)
+        StatWidgetCard(Modifier.weight(1f), "月收入", "¥${String.format("%.0f", monthlyIncome)}", Icons.Outlined.Payments, Amber600)
+    }
+}
+
+@Composable
+private fun StatWidgetCard(modifier: Modifier, label: String, value: String, icon: ImageVector, accent: Color) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(Modifier.padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                Modifier.size(36.dp).background(gradient.first, RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Box(Modifier.size(42.dp).clip(CircleShape).background(accent.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp))
             }
-            Spacer(Modifier.height(8.dp))
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Gray900)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = Gray500)
+            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = accent)
+            Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
 
-// ── Section Header ──
+// ── WidgetHeader ──
 @Composable
-private fun SectionHeader(title: String, count: String?, accent: Color) {
-    Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = Gray900)
+private fun WidgetHeader(title: String, icon: ImageVector, accent: Color, count: String?) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         if (count != null) {
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(8.dp))
             Surface(shape = RoundedCornerShape(10.dp), color = accent.copy(alpha = 0.12f)) {
                 Text(count, Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = accent)
             }
@@ -169,43 +239,40 @@ private fun SectionHeader(title: String, count: String?, accent: Color) {
     }
 }
 
-// ── 空状态 ──
+// ── EmptyWidget ──
 @Composable
-private fun EmptyStateCard(title: String, subtitle: String) {
-    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = SurfaceWhite)) {
+private fun EmptyWidget(title: String, subtitle: String) {
+    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
         Column(Modifier.fillMaxWidth().padding(40.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Outlined.EventNote, contentDescription = null, tint = Gray300, modifier = Modifier.size(44.dp))
+            Icon(Icons.Outlined.EventNote, contentDescription = null, tint = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.size(44.dp))
             Spacer(Modifier.height(12.dp))
-            Text(title, style = MaterialTheme.typography.bodyLarge, color = Gray600)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Gray400)
+            Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
         }
     }
 }
 
-// ── 待收费卡片 ──
+// ── ③ PendingPaymentCard ──
 @Composable
-private fun UnpaidRecordCard(item: UnpaidRecordItem, onMarkPaid: () -> Unit, onClick: () -> Unit) {
-    val overdue = item.isOverdue
+private fun PendingPaymentCard(item: UnpaidRecordItem, onMarkPaid: () -> Unit, onClick: () -> Unit) {
     Card(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(8.dp).clip(RoundedCornerShape(4.dp)).background(if (overdue) ErrorRed else WarningOrange))
+            Box(Modifier.size(8.dp).clip(CircleShape).background(if (item.isOverdue) ErrorRed else WarningOrange))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("${item.studentName}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(item.studentName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.CalendarMonth, contentDescription = null, tint = Gray400, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Outlined.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text(DateUtils.formatDateFull(item.record.date), style = MaterialTheme.typography.bodySmall, color = Gray500)
+                    Text(DateUtils.formatDateFull(item.record.date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (item.record.location.isNotBlank()) {
                         Spacer(Modifier.width(8.dp))
-                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Gray400, modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(2.dp))
-                        Text(item.record.location, style = MaterialTheme.typography.bodySmall, color = Gray500, maxLines = 1)
+                        Text(item.record.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline, maxLines = 1)
                     }
                 }
                 Text("¥${String.format("%.0f", item.record.amount)} 待收", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, color = WarningOrange)
@@ -217,21 +284,21 @@ private fun UnpaidRecordCard(item: UnpaidRecordItem, onMarkPaid: () -> Unit, onC
     }
 }
 
-// ── 月结算待收款卡片 ──
+// ── ④ SettlementWidgetCard ──
 @Composable
-private fun UnpaidSettlementHomeCard(item: UnpaidSettlementItem, onClick: () -> Unit) {
+private fun SettlementWidgetCard(item: UnpaidSettlementItem, onClick: () -> Unit) {
     Card(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Outlined.DateRange, contentDescription = null, tint = Amber500, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text("${item.studentName}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                Text("${item.settlement.year}年${item.settlement.month + 1}月 · ${item.settlement.sessionCount} 次课 · ¥${String.format("%.0f", item.settlement.totalAmount)}", style = MaterialTheme.typography.bodySmall, color = Gray500)
+                Text(item.studentName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                Text("${item.settlement.year}年${item.settlement.month + 1}月 · ${item.settlement.sessionCount} 次课 · ¥${String.format("%.0f", item.settlement.totalAmount)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Surface(shape = RoundedCornerShape(8.dp), color = WarningBg) {
                 Text("待收款", Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = WarningOrange)
@@ -240,66 +307,56 @@ private fun UnpaidSettlementHomeCard(item: UnpaidSettlementItem, onClick: () -> 
     }
 }
 
-// ── 课时不足卡片 ──
+// ── ⑤ LowSessionWidgetCard ──
 @Composable
-private fun LowSessionCard(item: LowSessionStudentItem, onClick: () -> Unit) {
+private fun LowSessionWidgetCard(item: LowSessionStudentItem, onClick: () -> Unit) {
     val empty = item.remainingSessions == 0
     Card(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = if (empty) ErrorBg else WarningBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                if (empty) Icons.Filled.PriorityHigh else Icons.Filled.Info,
-                contentDescription = null,
-                tint = if (empty) ErrorRed else WarningOrange,
-                modifier = Modifier.size(18.dp)
-            )
+            Icon(if (empty) Icons.Filled.PriorityHigh else Icons.Filled.Info, contentDescription = null, tint = if (empty) ErrorRed else WarningOrange, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("${item.studentName}", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-            Text(
-                if (empty) "已用完" else "剩余 ${item.remainingSessions} 次",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = if (empty) ErrorRed else WarningOrange
-            )
+            Text(item.studentName, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Text(if (empty) "已用完" else "剩余 ${item.remainingSessions} 次", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = if (empty) ErrorRed else WarningOrange)
         }
     }
 }
 
-// ── 最近记录卡片 ──
+// ── ⑥ RecentRecordWidgetCard ──
 @Composable
-private fun RecentRecordCard(item: RecentRecordItem) {
+private fun RecentRecordWidgetCard(item: RecentRecordItem) {
     Card(
         Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(Modifier.size(44.dp), shape = RoundedCornerShape(12.dp), color = Blue50) {
+            Surface(Modifier.size(44.dp), shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(DateUtils.formatDateDisplay(item.record.date), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = Blue600)
+                    Text(DateUtils.formatDateDisplay(item.record.date), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(item.studentName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, color = Gray900)
+                    Text(item.studentName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.width(6.dp))
-                    Text("${item.record.startTime} – ${item.record.endTime}", style = MaterialTheme.typography.bodySmall, color = Gray500)
+                    Text("${item.record.startTime} – ${item.record.endTime}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (item.record.location.isNotBlank()) {
-                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Gray400, modifier = Modifier.size(13.dp))
+                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(13.dp))
                         Spacer(Modifier.width(2.dp))
-                        Text(item.record.location, style = MaterialTheme.typography.bodySmall, color = Gray500, maxLines = 1)
+                        Text(item.record.location, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                     }
                     if (item.record.content.isNotBlank()) {
                         if (item.record.location.isNotBlank()) { Spacer(Modifier.width(8.dp)) }
-                        Text(item.record.content, style = MaterialTheme.typography.bodySmall, color = Gray400, maxLines = 1)
+                        Text(item.record.content, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline, maxLines = 1)
                     }
                 }
             }
