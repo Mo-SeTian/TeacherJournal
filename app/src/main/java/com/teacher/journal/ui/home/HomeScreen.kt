@@ -214,7 +214,7 @@ private fun StatWidgetCard(modifier: Modifier, label: String, value: String, ico
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(42.dp).clip(CircleShape).background(accent.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
                 Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp))
             }

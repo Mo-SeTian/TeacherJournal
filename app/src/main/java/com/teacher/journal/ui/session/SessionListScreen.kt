@@ -139,6 +139,10 @@ fun SessionListScreen(
                                             Spacer(Modifier.width(8.dp))
                                             PaymentStatusBadge(session.paymentStatus)
                                         }
+                                    } else if (session.coursePackageId > 0) {
+                                        Text("📦 课时包扣除", style = MaterialTheme.typography.labelSmall, color = Green600)
+                                    } else if (session.settlementId > 0) {
+                                        Text("📅 已结算", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                     }
                                 }
                             }
