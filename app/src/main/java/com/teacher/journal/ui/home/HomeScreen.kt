@@ -39,6 +39,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = {
@@ -48,13 +49,13 @@ fun HomeScreen(
                         Text("授业札记", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = OnPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary600.copy(alpha = 0.92f), titleContentColor = OnPrimary)
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToSessionRecord,
-                containerColor = Primary,
+                containerColor = Primary600,
                 contentColor = OnPrimary,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("记录上课") }
@@ -66,6 +67,9 @@ fun HomeScreen(
                 CircularProgressIndicator(color = Primary)
             }
         } else {
+            Box(modifier = Modifier.fillMaxSize().background(
+                Brush.verticalGradient(listOf(IridescentLavender.copy(alpha = 0.5f), IridescentBlue.copy(alpha = 0.3f), Gray50))
+            )) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
@@ -134,6 +138,7 @@ fun HomeScreen(
                     }
                 }
             }
+            }
         }
     }
 }
@@ -142,8 +147,8 @@ fun HomeScreen(
 @Composable
 private fun HeroSummaryWidget(unpaidCount: Int, settlementCount: Int, lowSessionCount: Int, monthlyIncome: Double) {
     val colorScheme = MaterialTheme.colorScheme
-    val gradient = remember(colorScheme.primaryContainer, colorScheme.surface) {
-        Brush.verticalGradient(listOf(colorScheme.primaryContainer, colorScheme.surface))
+    val gradient = remember {
+        Brush.verticalGradient(listOf(IridescentLavender, IridescentBlue, Color.White))
     }
     val hasAlert = unpaidCount > 0 || settlementCount > 0 || lowSessionCount > 0
     Card(
@@ -214,7 +219,7 @@ private fun StatWidgetCard(modifier: Modifier, label: String, value: String, ico
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.size(42.dp).clip(CircleShape).background(accent.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
                 Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(22.dp))
             }
