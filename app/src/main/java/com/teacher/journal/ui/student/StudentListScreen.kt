@@ -34,10 +34,10 @@ fun StudentListScreen(
         topBar = {
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text("学生", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Blue600, titleContentColor = OnPrimary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary),
                 actions = {
                     IconButton(onClick = onNavigateToAdd) {
-                        Icon(Icons.Filled.PersonAdd, contentDescription = "添加学生", tint = OnPrimary)
+                        Icon(Icons.Filled.PersonAdd, contentDescription = "添加学生", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
@@ -70,7 +70,7 @@ fun StudentListScreen(
             Spacer(Modifier.height(12.dp))
 
             if (uiState.isLoading) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Blue500) }
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
             } else if (uiState.students.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

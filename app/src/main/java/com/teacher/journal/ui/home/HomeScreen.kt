@@ -49,15 +49,15 @@ fun HomeScreen(
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = OnPrimary, modifier = Modifier.size(24.dp))
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                         Spacer(Modifier.width(10.dp))
                         Text("授业札记", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary600, titleContentColor = OnPrimary),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary),
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Filled.Settings, contentDescription = "设置", tint = OnPrimary)
+                        Icon(Icons.Filled.Settings, contentDescription = "设置", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             )
@@ -65,7 +65,7 @@ fun HomeScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToSessionRecord,
-                containerColor = Primary600,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = OnPrimary,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("记录上课") }
@@ -74,7 +74,7 @@ fun HomeScreen(
     ) { padding ->
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Primary)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
             Box(modifier = Modifier.fillMaxSize().background(

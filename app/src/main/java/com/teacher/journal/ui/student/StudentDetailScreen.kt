@@ -42,17 +42,17 @@ fun StudentDetailScreen(
         topBar = {
             TopAppBar(windowInsets = WindowInsets(0,0,0,0),
                 title = { Text(uiState.student?.name ?: "学生详情", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = OnPrimary) } },
+                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.onPrimary) } },
                 actions = {
-                    IconButton(onClick = onNavigateToEdit) { Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = OnPrimary) }
-                    IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = OnPrimary) }
+                    IconButton(onClick = onNavigateToEdit) { Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.onPrimary) }
+                    IconButton(onClick = { showDeleteDialog = true }) { Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = MaterialTheme.colorScheme.onPrimary) }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Blue600, titleContentColor = OnPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = MaterialTheme.colorScheme.onPrimary)
             )
         }
     ) { padding ->
         if (uiState.isLoading || uiState.student == null) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = Blue500) }
+            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
         } else {
             val student = uiState.student!!
             LazyColumn(
@@ -165,7 +165,7 @@ private fun RemainingSessionsCard(remaining: Int, onBuy: () -> Unit) {
             Text("剩余课时", style = MaterialTheme.typography.labelMedium, color = Gray600)
             Text("$remaining 次", style = MaterialTheme.typography.displayLarge, fontWeight = FontWeight.Bold, color = Blue700)
             Spacer(Modifier.height(12.dp))
-            Button(onClick = onBuy, colors = ButtonDefaults.buttonColors(containerColor = Blue600), shape = RoundedCornerShape(12.dp)) {
+            Button(onClick = onBuy, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary), shape = RoundedCornerShape(12.dp)) {
                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("购买课时")
