@@ -3,7 +3,6 @@ package com.teacher.journal.ui.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,6 +24,7 @@ import com.teacher.journal.ui.components.*
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -110,17 +110,17 @@ fun HomeScreen(
                         uiState.unpaidRecords.forEach { alertItem ->
                             UnpaidRow(alertItem) { onNavigateToStudentDetail(alertItem.record.studentId) }
                             idx++
-                            if (idx < totalAlerts) RowDivider(startInset = 16.dp)
+                            if (idx < totalAlerts) RowDivider(startInset = AppleInset.Full)
                         }
                         uiState.unpaidSettlements.forEach { alertItem ->
                             SettlementRow(alertItem) { onNavigateToStudentDetail(alertItem.settlement.studentId) }
                             idx++
-                            if (idx < totalAlerts) RowDivider(startInset = 16.dp)
+                            if (idx < totalAlerts) RowDivider(startInset = AppleInset.Full)
                         }
                         uiState.lowSessionStudents.forEach { alertItem ->
                             LowSessionRow(alertItem) { onNavigateToStudentDetail(alertItem.studentId) }
                             idx++
-                            if (idx < totalAlerts) RowDivider(startInset = 16.dp)
+                            if (idx < totalAlerts) RowDivider(startInset = AppleInset.Full)
                         }
                     }
                 }
@@ -146,7 +146,7 @@ fun HomeScreen(
                     GroupedCard {
                         uiState.recentRecords.forEachIndexed { i, item ->
                             RecentSessionRow(item)
-                            if (i < uiState.recentRecords.lastIndex) RowDivider(startInset = 16.dp)
+                            if (i < uiState.recentRecords.lastIndex) RowDivider(startInset = AppleInset.Avatar)
                         }
                     }
                 }
@@ -243,7 +243,6 @@ private fun StatusDot(color: Color) {
 
 @Composable
 private fun RecentSessionRow(item: RecentRecordItem) {
-    val timeLabel = "${item.record.startTime}"
     val locSubject = buildString {
         if (item.record.location.isNotBlank()) append(item.record.location)
         if (item.record.content.isNotBlank()) {
@@ -253,27 +252,42 @@ private fun RecentSessionRow(item: RecentRecordItem) {
     }
     ListRow(
         title = item.studentName,
-        subtitle = if (locSubject.isBlank()) DateUtils.formatDateDisplay(item.record.date) + " · " + timeLabel
-                   else "${DateUtils.formatDateDisplay(item.record.date)} $timeLabel · $locSubject",
+        subtitle = if (locSubject.isBlank()) item.record.startTime
+                   else "${item.record.startTime} · $locSubject",
         leading = { DateBadge(item.record.date) },
         trailing = { PaymentStatusBadge(item.record.paymentStatus) }
     )
 }
 
+private val WEEK_LABELS_HOME = arrayOf("日", "一", "二", "三", "四", "五", "六")
+
 @Composable
 private fun DateBadge(date: Long) {
-    val month = SimpleDateFormat("M月", Locale.CHINA).format(Date(date))
-    val day = SimpleDateFormat("d", Locale.CHINA).format(Date(date))
+    val cal = remember(date) { Calendar.getInstance().apply { timeInMillis = date } }
+    val day = cal.get(Calendar.DAY_OF_MONTH).toString()
+    val weekLabel = "周${WEEK_LABELS_HOME[cal.get(Calendar.DAY_OF_WEEK) - 1]}"
+    val primary = MaterialTheme.colorScheme.primary
     Column(
-        Modifier.size(width = 36.dp, height = 40.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
-            .padding(vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        Modifier.size(40.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(primary.copy(alpha = 0.1f)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(month, fontSize = 9.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
-        Text(day, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold, lineHeight = 18.sp)
+        Text(
+            day,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = primary,
+            lineHeight = 18.sp
+        )
+        Text(
+            weekLabel,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Medium,
+            color = primary.copy(alpha = 0.75f),
+            lineHeight = 11.sp
+        )
     }
 }
 

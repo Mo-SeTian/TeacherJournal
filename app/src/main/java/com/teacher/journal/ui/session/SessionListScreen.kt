@@ -192,7 +192,7 @@ fun SessionListScreen(
                                         }
                                     }
                                 )
-                                if (i < sel.sessions.lastIndex) RowDivider(startInset = 16.dp)
+                                if (i < sel.sessions.lastIndex) RowDivider(startInset = AppleInset.Full)
                             }
                         }
                     }

@@ -93,7 +93,7 @@ fun StudentListScreen(
                     GroupedCard {
                         uiState.students.forEachIndexed { i, student ->
                             StudentRow(student) { onNavigateToDetail(student.id) }
-                            if (i < uiState.students.lastIndex) RowDivider(startInset = 66.dp)
+                            if (i < uiState.students.lastIndex) RowDivider(startInset = AppleInset.Avatar)
                         }
                     }
                 }

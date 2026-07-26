@@ -25,6 +25,15 @@ val AppleLabelSecondary = Color(0xFF8E8E93)
 val AppleLabelTertiary = Color(0xFFC7C7CC)
 val AppleFill = Color(0xFFF2F2F7)
 
+// Divider inset presets — align with ListRow's `padding(16) + leading + spacer(14)`
+object AppleInset {
+    val Full = 16.dp           // no leading — divider from card left+16
+    val LeadingIcon = 50.dp    // 20dp icon leading  (16 + 20 + 14)
+    val Avatar = 70.dp         // 40dp avatar/square leading (16 + 40 + 14)
+    val DateChip = 66.dp       // 36dp date chip leading (16 + 36 + 14)
+    val ThreeSwatch = 86.dp    // 3×16dp dots + 2×4dp gaps (16 + 56 + 14)
+}
+
 /**
  * iOS-style large title. Placed inside a scrolling column, above content.
  */

@@ -65,7 +65,7 @@ fun SettingsScreen(
                         ThemeRow(theme.name, theme.primary, theme.secondary, theme.tertiary, selected) {
                             viewModel.selectTheme(theme.id)
                         }
-                        if (i < uiState.themes.lastIndex) RowDivider(startInset = 76.dp)
+                        if (i < uiState.themes.lastIndex) RowDivider(startInset = AppleInset.ThreeSwatch)
                     }
                 }
             }
@@ -75,7 +75,7 @@ fun SettingsScreen(
                 SectionHeader("关于")
                 GroupedCard {
                     ListRow(title = "版本", trailing = { TrailingValue("1.0.0") })
-                    RowDivider(startInset = 16.dp)
+                    RowDivider(startInset = AppleInset.Full)
                     ListRow(title = "授业札记", subtitle = "com.teacher.journal")
                 }
             }

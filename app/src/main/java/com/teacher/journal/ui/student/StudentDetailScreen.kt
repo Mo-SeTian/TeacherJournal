@@ -105,22 +105,22 @@ fun StudentDetailScreen(
                         if (hasPhone) {
                             InfoRow(Icons.Outlined.Call, "电话", student.phone)
                             infoIdx++
-                            if (infoIdx < infoCount) RowDivider(startInset = 60.dp)
+                            if (infoIdx < infoCount) RowDivider(startInset = AppleInset.LeadingIcon)
                         }
                         if (hasSubject) {
                             InfoRow(Icons.Outlined.School, "科目", student.subject)
                             infoIdx++
-                            if (infoIdx < infoCount) RowDivider(startInset = 60.dp)
+                            if (infoIdx < infoCount) RowDivider(startInset = AppleInset.LeadingIcon)
                         }
                         if (hasLocation) {
                             InfoRow(Icons.Outlined.LocationOn, "地点", student.location)
                             infoIdx++
-                            if (infoIdx < infoCount) RowDivider(startInset = 60.dp)
+                            if (infoIdx < infoCount) RowDivider(startInset = AppleInset.LeadingIcon)
                         }
                         if (hasRate) {
                             InfoRow(Icons.Outlined.Payments, "月薪", "¥${String.format("%.0f", student.monthlyRate)}")
                             infoIdx++
-                            if (infoIdx < infoCount) RowDivider(startInset = 60.dp)
+                            if (infoIdx < infoCount) RowDivider(startInset = AppleInset.LeadingIcon)
                         }
                         if (hasNotes) {
                             InfoRow(Icons.Outlined.Notes, "备注", student.notes)
@@ -141,7 +141,7 @@ fun StudentDetailScreen(
                         GroupedCard {
                             uiState.coursePackages.forEachIndexed { i, pkg ->
                                 PackageHistoryRow(pkg)
-                                if (i < uiState.coursePackages.lastIndex) RowDivider(startInset = 16.dp)
+                                if (i < uiState.coursePackages.lastIndex) RowDivider(startInset = AppleInset.Full)
                             }
                         }
                     }
@@ -185,7 +185,7 @@ fun StudentDetailScreen(
                         GroupedCard {
                             uiState.monthlySettlements.forEachIndexed { i, s ->
                                 SettlementHistoryRow(s)
-                                if (i < uiState.monthlySettlements.lastIndex) RowDivider(startInset = 16.dp)
+                                if (i < uiState.monthlySettlements.lastIndex) RowDivider(startInset = AppleInset.Full)
                             }
                         }
                     }
@@ -214,7 +214,7 @@ fun StudentDetailScreen(
                     GroupedCard {
                         uiState.sessionRecords.forEachIndexed { i, record ->
                             SessionRecordRow(record)
-                            if (i < uiState.sessionRecords.lastIndex) RowDivider(startInset = 60.dp)
+                            if (i < uiState.sessionRecords.lastIndex) RowDivider(startInset = AppleInset.DateChip)
                         }
                     }
                 }
