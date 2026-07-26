@@ -1,25 +1,31 @@
 package com.teacher.journal.ui.student
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.Student
-import androidx.compose.ui.graphics.Color
+import com.teacher.journal.ui.components.*
 import com.teacher.journal.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,59 +38,64 @@ fun StudentListScreen(
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
-                title = { Text("学生", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = MaterialTheme.colorScheme.onSurface),
+            TopAppBar(
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                title = {},
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                 actions = {
                     IconButton(onClick = onNavigateToAdd) {
-                        Icon(Icons.Filled.PersonAdd, contentDescription = "添加学生", tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Filled.PersonAdd, "添加学生", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             )
         }
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)) {
-            Spacer(Modifier.height(12.dp))
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.searchStudents(it) },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("搜索姓名或电话") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = Gray400) },
-                trailingIcon = {
-                    if (uiState.searchQuery.isNotBlank()) {
-                        IconButton(onClick = { viewModel.searchStudents("") }) {
-                            Icon(Icons.Filled.Clear, contentDescription = "清除", tint = Gray400)
-                        }
-                    }
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Blue500,
-                    unfocusedBorderColor = Gray200,
-                    focusedContainerColor = SurfaceWhite,
-                    unfocusedContainerColor = SurfaceWhite
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp)
+        ) {
+            item {
+                LargeTitle(title = "学生", subtitle = "共 ${uiState.students.size} 位")
+                Spacer(Modifier.height(8.dp))
+            }
+
+            item {
+                AppleSearchField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.searchStudents(it) },
+                    placeholder = "搜索姓名或电话"
                 )
-            )
-            Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
+            }
 
             if (uiState.isLoading) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = MaterialTheme.colorScheme.primary) }
+                item {
+                    Box(Modifier.fillMaxWidth().padding(top = 80.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    }
+                }
             } else if (uiState.students.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Outlined.People, contentDescription = null, modifier = Modifier.size(56.dp), tint = Gray300)
-                        Spacer(Modifier.height(12.dp))
-                        Text("还没有添加学生", style = MaterialTheme.typography.bodyLarge, color = Gray600)
-                        Text("点击右上角 + 添加第一个学生", style = MaterialTheme.typography.bodySmall, color = Gray400)
+                item {
+                    Box(Modifier.fillMaxWidth().padding(top = 80.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("暂无学生", fontSize = 17.sp, color = AppleLabelSecondary,
+                                fontWeight = FontWeight.Medium)
+                            Text("点击右上角 + 添加第一位学生",
+                                fontSize = 13.sp, color = AppleLabelTertiary,
+                                modifier = Modifier.padding(top = 6.dp))
+                        }
                     }
                 }
             } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(uiState.students) { student -> StudentCard(student, { onNavigateToDetail(student.id) }) }
-                    item { Spacer(Modifier.height(16.dp)) }
+                item {
+                    GroupedCard {
+                        uiState.students.forEachIndexed { i, student ->
+                            StudentRow(student) { onNavigateToDetail(student.id) }
+                            if (i < uiState.students.lastIndex) RowDivider(startInset = 66.dp)
+                        }
+                    }
                 }
             }
         }
@@ -92,48 +103,38 @@ fun StudentListScreen(
 }
 
 @Composable
-private fun StudentCard(student: Student, onClick: () -> Unit) {
-    Card(
-        Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+private fun StudentRow(student: Student, onClick: () -> Unit) {
+    ListRow(
+        title = student.name,
+        subtitle = buildString {
+            if (student.subject.isNotBlank()) append(student.subject)
+            if (student.location.isNotBlank()) {
+                if (isNotEmpty()) append(" · ")
+                append(student.location)
+            }
+            if (isEmpty() && student.phone.isNotBlank()) append(student.phone)
+        }.ifEmpty { null },
+        leading = { Avatar(student.name) },
+        trailing = { PaymentTypeBadge(student.paymentType) },
+        showChevron = true,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun Avatar(name: String) {
+    val initial = name.take(1)
+    val bg = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+    Box(
+        Modifier.size(40.dp).clip(CircleShape).background(bg),
+        contentAlignment = Alignment.Center
     ) {
-        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            // 头像
-            Surface(Modifier.size(46.dp), shape = RoundedCornerShape(14.dp), color = Blue50) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Person, contentDescription = null, tint = Blue500, modifier = Modifier.size(24.dp))
-                }
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(student.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = Gray900)
-                    if (student.subject.isNotBlank()) {
-                        Spacer(Modifier.width(8.dp))
-                        Surface(shape = RoundedCornerShape(6.dp), color = Blue50) {
-                            Text(student.subject, Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = Blue600)
-                        }
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (student.phone.isNotBlank()) {
-                        Icon(Icons.Outlined.Call, contentDescription = null, tint = Gray400, modifier = Modifier.size(13.dp))
-                        Spacer(Modifier.width(3.dp))
-                        Text(student.phone, style = MaterialTheme.typography.bodySmall, color = Gray500)
-                    }
-                    if (student.location.isNotBlank()) {
-                        if (student.phone.isNotBlank()) { Spacer(Modifier.width(12.dp)) }
-                        Icon(Icons.Outlined.LocationOn, contentDescription = null, tint = Gray400, modifier = Modifier.size(13.dp))
-                        Spacer(Modifier.width(3.dp))
-                        Text(student.location, style = MaterialTheme.typography.bodySmall, color = Gray500)
-                    }
-                }
-            }
-            PaymentTypeBadge(student.paymentType)
-        }
+        Text(
+            initial,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -144,7 +145,50 @@ fun PaymentTypeBadge(paymentType: PaymentType) {
         PaymentType.PER_SESSION -> Triple("按次付", Amber50, Amber600)
         PaymentType.MONTHLY -> Triple("月结算", Blue50, Blue600)
     }
-    Surface(shape = RoundedCornerShape(8.dp), color = bg) {
-        Text(label, Modifier.padding(horizontal = 10.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = fg)
+    TrailingPill(label, fg, bg)
+}
+
+/** iOS-style search field: filled gray pill, no border. */
+@Composable
+fun AppleSearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(AppleFill)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(Icons.Outlined.Search, contentDescription = null,
+            tint = AppleLabelSecondary, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(6.dp))
+        Box(Modifier.weight(1f)) {
+            if (value.isEmpty()) {
+                Text(placeholder, fontSize = 15.sp, color = AppleLabelSecondary)
+            }
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                singleLine = true,
+                textStyle = TextStyle(
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        if (value.isNotEmpty()) {
+            IconButton(onClick = { onValueChange("") }, modifier = Modifier.size(22.dp)) {
+                Icon(Icons.Filled.Clear, contentDescription = "清除",
+                    tint = AppleLabelSecondary, modifier = Modifier.size(16.dp))
+            }
+        }
     }
 }

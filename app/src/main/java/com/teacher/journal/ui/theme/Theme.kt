@@ -25,14 +25,14 @@ fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
     error = ErrorRed,
     errorContainer = ErrorBg,
     onErrorContainer = ErrorRed,
-    background = Color.White,
+    background = Color(0xFFF5F5F7), // Apple grouped-list background — perceptually white, subtly lifts cards
     onBackground = Gray900,
     surface = Color.White,
     onSurface = Gray900,
-    surfaceVariant = Color.White.copy(alpha = 0.9f),
+    surfaceVariant = Color(0xFFF2F2F7),
     onSurfaceVariant = Gray600,
-    outline = Gray200,
-    outlineVariant = Gray100
+    outline = Color(0xFFE5E5EA),
+    outlineVariant = Color(0xFFF0F0F3)
 )
 
 @Composable

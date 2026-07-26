@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,8 +18,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.teacher.journal.ui.components.*
 import com.teacher.journal.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,58 +33,91 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 windowInsets = WindowInsets(0, 0, 0, 0),
-                title = { Text("设置", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                title = {},
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Filled.ArrowBack, "返回",
+                            tint = MaterialTheme.colorScheme.primary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
     ) { padding ->
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(top = 4.dp, bottom = 32.dp)
         ) {
             item {
-                Text("主题色", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("选择你喜欢的强调色", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                LargeTitle(title = "设置")
+                Spacer(Modifier.height(8.dp))
             }
 
-            itemsIndexed(uiState.themes) { _, theme ->
-                val selected = theme.id == uiState.currentThemeId
-                Card(
-                    Modifier.fillMaxWidth().clickable { viewModel.selectTheme(theme.id) },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        // 配色预览小球
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Box(Modifier.size(28.dp).clip(CircleShape).background(theme.primary))
-                            Box(Modifier.size(28.dp).clip(CircleShape).background(theme.secondary))
-                            Box(Modifier.size(28.dp).clip(CircleShape).background(theme.tertiary))
+            item {
+                SectionHeader("外观")
+                GroupedCard {
+                    uiState.themes.forEachIndexed { i, theme ->
+                        val selected = theme.id == uiState.currentThemeId
+                        ThemeRow(theme.name, theme.primary, theme.secondary, theme.tertiary, selected) {
+                            viewModel.selectTheme(theme.id)
                         }
-                        Spacer(Modifier.width(14.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text(theme.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                            Text(theme.id, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        if (selected) {
-                            Icon(Icons.Filled.Check, contentDescription = "已选中", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
-                        }
+                        if (i < uiState.themes.lastIndex) RowDivider(startInset = 76.dp)
                     }
+                }
+            }
+
+            item {
+                Spacer(Modifier.height(24.dp))
+                SectionHeader("关于")
+                GroupedCard {
+                    ListRow(title = "版本", trailing = { TrailingValue("1.0.0") })
+                    RowDivider(startInset = 16.dp)
+                    ListRow(title = "授业札记", subtitle = "com.teacher.journal")
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ThemeRow(
+    name: String,
+    primary: Color,
+    secondary: Color,
+    tertiary: Color,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    ListRow(
+        title = name,
+        leading = { ThreeDotSwatch(primary, secondary, tertiary) },
+        trailing = {
+            if (selected) {
+                Icon(Icons.Filled.Check, contentDescription = "已选",
+                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+            }
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun ThreeDotSwatch(a: Color, b: Color, c: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Swatch(a)
+        Swatch(b)
+        Swatch(c)
+    }
+}
+
+@Composable
+private fun Swatch(color: Color) {
+    Box(
+        Modifier.size(16.dp).clip(CircleShape).background(color)
+            .border(0.5.dp, AppleSeparator, CircleShape)
+    )
 }
