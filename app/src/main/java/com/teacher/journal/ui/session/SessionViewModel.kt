@@ -19,7 +19,9 @@ data class CalendarDay(
     val sessions: List<SessionRecord>,
     val sessionCount: Int,
     val totalAmount: Double,
-    val studentNames: List<String>
+    val studentNames: List<String>,
+    /** 是否为相邻月份（上/下月）的补位日期，渲染为浅色 */
+    val isAdjacentMonth: Boolean = false
 )
 
 data class SessionListUiState(
@@ -70,9 +72,28 @@ class SessionViewModel @Inject constructor(
                 val firstDow = calendar.get(Calendar.DAY_OF_WEEK) // 1=Sun
 
                 val calendarDays = mutableListOf<CalendarDay>()
-                // 填充上月空白格
-                repeat((firstDow + 5) % 7) {
-                    calendarDays.add(CalendarDay(0, 0, emptyList(), 0, 0.0, emptyList()))
+                val leading = (firstDow + 5) % 7
+                // 填充上月最后几天（浅色补位）
+                calendar.set(year, month, 1)
+                calendar.add(Calendar.DAY_OF_MONTH, -leading)
+                repeat(leading) {
+                    calendar.set(Calendar.HOUR_OF_DAY, 0)
+                    calendar.set(Calendar.MINUTE, 0)
+                    calendar.set(Calendar.SECOND, 0)
+                    calendar.set(Calendar.MILLISECOND, 0)
+                    val t = calendar.timeInMillis
+                    calendarDays.add(
+                        CalendarDay(
+                            date = t,
+                            dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH),
+                            sessions = emptyList(),
+                            sessionCount = 0,
+                            totalAmount = 0.0,
+                            studentNames = emptyList(),
+                            isAdjacentMonth = true
+                        )
+                    )
+                    calendar.add(Calendar.DAY_OF_MONTH, 1)
                 }
                 // 填充本月日期
                 for (day in 1..daysInMonth) {
@@ -94,6 +115,30 @@ class SessionViewModel @Inject constructor(
                             studentNames = dayRecords.mapNotNull { r -> studentMap[r.studentId]?.name }.distinct()
                         )
                     )
+                }
+                // 填充下月前几天（浅色补位）
+                val trailing = (7 - (leading + daysInMonth) % 7) % 7
+                if (trailing > 0) {
+                    calendar.set(year, month, daysInMonth, 0, 0, 0)
+                    calendar.set(Calendar.MILLISECOND, 0)
+                    repeat(trailing) {
+                        calendar.add(Calendar.DAY_OF_MONTH, 1)
+                        calendar.set(Calendar.HOUR_OF_DAY, 0)
+                        calendar.set(Calendar.MINUTE, 0)
+                        calendar.set(Calendar.SECOND, 0)
+                        calendar.set(Calendar.MILLISECOND, 0)
+                        calendarDays.add(
+                            CalendarDay(
+                                date = calendar.timeInMillis,
+                                dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH),
+                                sessions = emptyList(),
+                                sessionCount = 0,
+                                totalAmount = 0.0,
+                                studentNames = emptyList(),
+                                isAdjacentMonth = true
+                            )
+                        )
+                    }
                 }
 
                 val totalSessions = records.size

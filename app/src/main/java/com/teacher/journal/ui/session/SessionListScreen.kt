@@ -142,9 +142,11 @@ fun SessionListScreen(
                                                 CalendarDayCell(
                                                     day = day,
                                                     isToday = isToday,
-                                                    isSelected = selectedDay == day,
+                                                    isSelected = !day.isAdjacentMonth && selectedDay == day,
                                                     onClick = {
-                                                        selectedDay = if (selectedDay == day) null else day
+                                                        if (!day.isAdjacentMonth) {
+                                                            selectedDay = if (selectedDay == day) null else day
+                                                        }
                                                     }
                                                 )
                                             }
@@ -260,6 +262,21 @@ private fun CalendarDayCell(
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val hasSessions = day.sessionCount > 0
+
+    // 相邻月份补位：浅色数字，不可点
+    if (day.isAdjacentMonth) {
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "${day.dayOfMonth}",
+                fontSize = 13.sp,
+                color = AppTextTertiary
+            )
+        }
+        return
+    }
 
     val bgColor = when {
         isSelected -> primary
