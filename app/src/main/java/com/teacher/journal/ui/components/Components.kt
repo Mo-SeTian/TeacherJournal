@@ -106,7 +106,7 @@ fun AppScreenTitle(
     subtitle: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
+    Column(modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 2.dp, bottom = 8.dp)) {
         Text(
             title,
             fontSize = 30.sp,

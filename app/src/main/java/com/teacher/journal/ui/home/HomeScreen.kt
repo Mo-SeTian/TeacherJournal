@@ -57,7 +57,7 @@ fun HomeScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 100.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 100.dp)
         ) {
             item {
                 AppScreenTitle(title = "今日", subtitle = TodayLabel())
