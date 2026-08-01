@@ -65,7 +65,7 @@ fun AppTopBar(
         Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
-            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(top = 12.dp)
     ) {
         Row(
             Modifier
