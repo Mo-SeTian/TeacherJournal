@@ -66,35 +66,31 @@ fun AppTopBar(
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(top = 2.dp)
     ) {
-        TopAppBar(
-            windowInsets = WindowInsets(0, 0, 0, 0),
-            title = {
-                Text(
-                    title,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            navigationIcon = {
-                if (onBack != null) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (onBack != null) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "返回",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
-            },
-            actions = actions,
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                titleContentColor = MaterialTheme.colorScheme.onSurface
+            }
+            Text(
+                title,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
             )
-        )
+            actions()
+        }
     }
 }
 
@@ -106,7 +102,7 @@ fun AppScreenTitle(
     subtitle: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 2.dp, bottom = 8.dp)) {
+    Column(modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 10.dp)) {
         Text(
             title,
             fontSize = 30.sp,
