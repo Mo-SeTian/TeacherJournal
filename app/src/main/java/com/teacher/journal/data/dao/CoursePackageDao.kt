@@ -10,8 +10,14 @@ interface CoursePackageDao {
     @Query("SELECT * FROM course_packages WHERE studentId = :studentId ORDER BY purchaseDate DESC")
     fun getPackagesForStudent(studentId: Long): Flow<List<CoursePackage>>
 
+    @Query("SELECT * FROM course_packages")
+    suspend fun getAllOnce(): List<CoursePackage>
+
     @Query("SELECT * FROM course_packages WHERE studentId = :studentId ORDER BY purchaseDate DESC")
     suspend fun getPackagesForStudentOnce(studentId: Long): List<CoursePackage>
+
+    @Query("SELECT * FROM course_packages WHERE id = :id")
+    suspend fun getById(id: Long): CoursePackage?
 
     /**
      * 获取学生所有还有剩余次数的课时包，按购买日期升序（先用最早买的）
@@ -47,6 +53,12 @@ interface CoursePackageDao {
 
     @Query("UPDATE course_packages SET usedCount = usedCount + 1 WHERE id = :packageId")
     suspend fun incrementUsedCount(packageId: Long)
+
+    @Query("UPDATE course_packages SET usedCount = usedCount - 1 WHERE id = :packageId AND usedCount > 0")
+    suspend fun decrementUsedCount(packageId: Long)
+
+    @Query("UPDATE course_packages SET refundedSessions = :sessions, refundAmount = :amount, refundDate = :date WHERE id = :id")
+    suspend fun markRefunded(id: Long, sessions: Int, amount: Double, date: Long)
 
     @Delete
     suspend fun delete(pkg: CoursePackage)

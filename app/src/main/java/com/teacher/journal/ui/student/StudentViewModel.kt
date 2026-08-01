@@ -177,4 +177,25 @@ class StudentViewModel @Inject constructor(
             onComplete()
         }
     }
+
+    /** 删除上课记录（关联收入一并删除，已扣课时回补） */
+    fun deleteRecord(recordId: Long, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            val record = sessionRecordRepository.getRecordByIdOnce(recordId) ?: return@launch
+            sessionRecordRepository.deleteRecordAndRelated(record)
+            onComplete()
+        }
+    }
+
+    /** 退课时包剩余次数 */
+    fun refundPackage(packageId: Long, refundAmount: Double, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val pkg = coursePackageRepository.getById(packageId) ?: run {
+                onComplete(false)
+                return@launch
+            }
+            val ok = coursePackageRepository.refundPackage(pkg, refundAmount)
+            onComplete(ok)
+        }
+    }
 }

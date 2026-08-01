@@ -8,6 +8,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.teacher.journal.ui.components.AppBackground
+import com.teacher.journal.ui.components.AppDividerColor
+import com.teacher.journal.ui.components.AppFill
+import com.teacher.journal.ui.components.AppTextSecondary
 
 fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
     primary = preset.primary,
@@ -25,14 +29,14 @@ fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
     error = ErrorRed,
     errorContainer = ErrorBg,
     onErrorContainer = ErrorRed,
-    background = Color(0xFFF5F5F7), // Apple grouped-list background — perceptually white, subtly lifts cards
-    onBackground = Gray900,
+    background = AppBackground,
+    onBackground = Color(0xFF1A1D21),
     surface = Color.White,
-    onSurface = Gray900,
-    surfaceVariant = Color(0xFFF2F2F7),
-    onSurfaceVariant = Gray600,
-    outline = Color(0xFFE5E5EA),
-    outlineVariant = Color(0xFFF0F0F3)
+    onSurface = Color(0xFF1A1D21),
+    surfaceVariant = AppFill,
+    onSurfaceVariant = AppTextSecondary,
+    outline = AppDividerColor,
+    outlineVariant = AppDividerColor
 )
 
 @Composable
@@ -46,7 +50,7 @@ fun TeacherJournalTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color.White.toArgb()
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }

@@ -11,6 +11,9 @@ interface SessionRecordDao {
     @Query("SELECT * FROM session_records WHERE studentId = :studentId ORDER BY date DESC, startTime DESC")
     fun getRecordsForStudent(studentId: Long): Flow<List<SessionRecord>>
 
+    @Query("SELECT * FROM session_records")
+    suspend fun getAllOnce(): List<SessionRecord>
+
     @Query("SELECT * FROM session_records ORDER BY date DESC, startTime DESC")
     fun getAllRecords(): Flow<List<SessionRecord>>
 
@@ -75,6 +78,15 @@ interface SessionRecordDao {
      */
     @Query("UPDATE session_records SET settlementId = :settlementId WHERE id IN (:recordIds)")
     suspend fun updateSettlementId(recordIds: List<Long>, settlementId: Long)
+
+    @Query("UPDATE session_records SET settlementId = -1 WHERE settlementId = :settlementId")
+    suspend fun unlinkSettlement(settlementId: Long)
+
+    @Query("SELECT * FROM session_records WHERE settlementId = :settlementId ORDER BY date ASC")
+    suspend fun getRecordsBySettlementId(settlementId: Long): List<SessionRecord>
+
+    @Query("DELETE FROM session_records WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
     @Delete
     suspend fun delete(record: SessionRecord)

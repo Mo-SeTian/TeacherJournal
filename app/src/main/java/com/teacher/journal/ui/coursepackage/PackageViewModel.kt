@@ -70,4 +70,16 @@ class PackageViewModel @Inject constructor(
             onComplete()
         }
     }
+
+    /** 退款课时包剩余次数，写入负收入。@return true 表示退款成功 */
+    fun refundPackage(packageId: Long, refundAmount: Double, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val pkg = coursePackageRepository.getById(packageId) ?: run {
+                onComplete(false)
+                return@launch
+            }
+            val ok = coursePackageRepository.refundPackage(pkg, refundAmount)
+            onComplete(ok)
+        }
+    }
 }

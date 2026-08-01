@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,63 +24,65 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.ui.components.*
-import com.teacher.journal.ui.home.PaymentStatusBadge
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
-import java.util.Calendar
+import java.time.LocalDate
 
 private val WEEK_LABELS = listOf("一", "二", "三", "四", "五", "六", "日")
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionListScreen(
+    onEditRecord: (Long, Long) -> Unit = { _, _ -> },
     viewModel: SessionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
     var selectedDay by remember { mutableStateOf<CalendarDay?>(null) }
+    var recordToDelete by remember { mutableStateOf<SessionRecord?>(null) }
+    var message by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(message) {
+        message?.let {
+            snackbarHostState.showSnackbar(it)
+            message = null
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadRecordsForMonth(uiState.currentYear, uiState.currentMonth)
     }
 
-    // 今日
-    val todayCal = remember { Calendar.getInstance() }
-    val todayYear = todayCal.get(Calendar.YEAR)
-    val todayMonth = todayCal.get(Calendar.MONTH)
-    val todayDay = todayCal.get(Calendar.DAY_OF_MONTH)
+    val today = LocalDate.now()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                windowInsets = WindowInsets(0, 0, 0, 0),
-                title = {},
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
-            )
+            AppTopBar(title = "上课记录")
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp)
         ) {
             item {
-                LargeTitle(
+                AppScreenTitle(
                     title = "${uiState.currentYear}年${uiState.currentMonth + 1}月",
-                    subtitle = "${uiState.totalMonthSessions} 次课 · ¥${String.format("%.0f", uiState.totalMonthAmount)} 已收"
+                    subtitle = "${uiState.totalMonthSessions} 次课 · 已收 ¥${String.format("%.0f", uiState.totalMonthAmount)}"
                 )
                 Spacer(Modifier.height(4.dp))
             }
 
-            // Month toggle bar
             item {
                 Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
                         onClick = { viewModel.previousMonth() },
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(AppleFill)
+                        modifier = Modifier.size(38.dp).clip(CircleShape).background(AppFill)
                     ) {
                         Icon(Icons.Filled.ChevronLeft, "上月",
                             tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
@@ -87,14 +92,14 @@ fun SessionListScreen(
                         val (y, m) = DateUtils.getCurrentYearMonth()
                         viewModel.loadRecordsForMonth(y, m)
                     }) {
-                        Text("今天", fontSize = 15.sp,
+                        Text("回到今天", fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium)
                     }
                     Spacer(Modifier.weight(1f))
                     IconButton(
                         onClick = { viewModel.nextMonth() },
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(AppleFill)
+                        modifier = Modifier.size(38.dp).clip(CircleShape).background(AppFill)
                     ) {
                         Icon(Icons.Filled.ChevronRight, "下月",
                             tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
@@ -109,24 +114,17 @@ fun SessionListScreen(
                     }
                 }
             } else {
-                // Calendar card
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp)
-                    ) {
-                        Column(Modifier.padding(vertical = 12.dp, horizontal = 8.dp)) {
-                            // Week labels
-                            Row(Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
+                    AppCard {
+                        Column(Modifier.padding(vertical = 12.dp, horizontal = 6.dp)) {
+                            Row(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                                 WEEK_LABELS.forEachIndexed { i, label ->
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                                         Text(
                                             label,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = if (i == 6) ErrorRed.copy(alpha = 0.7f) else AppleLabelSecondary,
+                                            color = if (i == 6) AppError.copy(alpha = 0.7f) else AppTextSecondary,
                                             textAlign = TextAlign.Center
                                         )
                                     }
@@ -140,9 +138,9 @@ fun SessionListScreen(
                                             Modifier.weight(1f).aspectRatio(1f).padding(2.dp)
                                         ) {
                                             if (day.dayOfMonth > 0) {
-                                                val isToday = uiState.currentYear == todayYear &&
-                                                        uiState.currentMonth == todayMonth &&
-                                                        day.dayOfMonth == todayDay
+                                                val isToday = uiState.currentYear == today.year &&
+                                                        uiState.currentMonth == today.monthValue - 1 &&
+                                                        day.dayOfMonth == today.dayOfMonth
                                                 CalendarDayCell(
                                                     day = day,
                                                     isToday = isToday,
@@ -160,48 +158,34 @@ fun SessionListScreen(
                     }
                 }
 
-                // Selected day detail sheet-like list
                 val sel = selectedDay
-                if (sel != null && sel.sessions.isNotEmpty()) {
+                if (sel != null) {
                     item {
-                        SectionHeader(
+                        AppSectionHeader(
                             "${DateUtils.formatDateFull(sel.date)} · ${sel.sessionCount} 次课"
                         )
-                        GroupedCard {
-                            sel.sessions.forEachIndexed { i, s ->
-                                ListRow(
-                                    title = uiState.students[s.studentId]?.name ?: "未知",
-                                    subtitle = buildString {
-                                        append("${s.startTime}–${s.endTime}")
-                                        if (s.location.isNotBlank()) append(" · ${s.location}")
-                                    },
-                                    trailing = {
-                                        when {
-                                            s.amount > 0 -> Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Text("¥${String.format("%.0f", s.amount)}",
-                                                    fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
-                                                    color = MaterialTheme.colorScheme.onSurface)
-                                                Spacer(Modifier.width(6.dp))
-                                                PaymentStatusBadge(s.paymentStatus)
-                                            }
-                                            s.coursePackageId > 0 -> TrailingPill("扣课时", Green600, Green50)
-                                            s.settlementId > 0 -> TrailingPill("已结算",
-                                                MaterialTheme.colorScheme.primary,
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                                            else -> Unit
-                                        }
-                                    }
+                    }
+                    if (sel.sessions.isEmpty()) {
+                        item {
+                            AppCard {
+                                AppEmptyState(
+                                    icon = Icons.Outlined.EventNote,
+                                    title = "当天没有上课记录"
                                 )
-                                if (i < sel.sessions.lastIndex) RowDivider(startInset = AppleInset.Full)
                             }
                         }
-                    }
-                } else if (sel != null) {
-                    item {
-                        SectionHeader(DateUtils.formatDateFull(sel.date))
-                        GroupedCard {
-                            Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                                Text("当天没有上课记录", fontSize = 15.sp, color = AppleLabelSecondary)
+                    } else {
+                        item {
+                            AppCard {
+                                sel.sessions.forEachIndexed { i, s ->
+                                    DaySessionRow(
+                                        record = s,
+                                        studentName = uiState.students[s.studentId]?.name ?: "未知",
+                                        onEdit = { onEditRecord(s.studentId, s.id) },
+                                        onDelete = { recordToDelete = s }
+                                    )
+                                    if (i < sel.sessions.lastIndex) AppDivider()
+                                }
                             }
                         }
                     }
@@ -209,6 +193,64 @@ fun SessionListScreen(
             }
         }
     }
+
+    recordToDelete?.let { record ->
+        AlertDialog(
+            onDismissRequest = { recordToDelete = null },
+            title = { Text("删除上课记录") },
+            text = { Text("删除后关联收入一并清除，已扣课时自动回补。") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        recordToDelete = null
+                        viewModel.deleteRecord(record.id) { message = "记录已删除" }
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = AppError)
+                ) { Text("删除") }
+            },
+            dismissButton = { TextButton(onClick = { recordToDelete = null }) { Text("取消") } }
+        )
+    }
+}
+
+@Composable
+private fun DaySessionRow(
+    record: SessionRecord,
+    studentName: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    AppRow(
+        title = studentName,
+        subtitle = buildString {
+            append("${record.startTime}–${record.endTime}")
+            if (record.location.isNotBlank()) append(" · ${record.location}")
+            if (record.content.isNotBlank()) append(" · ${record.content}")
+        },
+        trailing = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                when {
+                    record.amount > 0 -> {
+                        Text("¥${String.format("%.0f", record.amount)}",
+                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.width(6.dp))
+                        AppStatusBadge(record.paymentStatus)
+                    }
+                    record.coursePackageId > 0 -> AppPill("扣课时", AppSuccess, AppSuccessBg)
+                    record.settlementId > 0 -> AppPill("已结算",
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                }
+                Spacer(Modifier.width(4.dp))
+                IconButton(onClick = onEdit, modifier = Modifier.size(30.dp)) {
+                    Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                }
+                IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
+                    Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = AppError, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
+    )
 }
 
 @Composable

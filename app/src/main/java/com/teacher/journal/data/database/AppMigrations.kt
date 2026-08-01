@@ -38,5 +38,15 @@ object AppMigrations {
         }
     }
 
-    val ALL = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+    /** v3 → v4: 课时包退款字段 + 收入记录关联月结算 */
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE course_packages ADD COLUMN refundedSessions INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE course_packages ADD COLUMN refundAmount REAL NOT NULL DEFAULT 0.0")
+            db.execSQL("ALTER TABLE course_packages ADD COLUMN refundDate INTEGER NOT NULL DEFAULT -1")
+            db.execSQL("ALTER TABLE earnings ADD COLUMN settlementId INTEGER NOT NULL DEFAULT -1")
+        }
+    }
+
+    val ALL = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 }

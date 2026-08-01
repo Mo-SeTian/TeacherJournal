@@ -3,7 +3,6 @@ package com.teacher.journal.ui.session
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teacher.journal.data.entity.*
-import com.teacher.journal.data.repository.CoursePackageRepository
 import com.teacher.journal.data.repository.EarningRepository
 import com.teacher.journal.data.repository.SessionRecordRepository
 import com.teacher.journal.data.repository.StudentRepository
@@ -38,7 +37,6 @@ data class SessionListUiState(
 class SessionViewModel @Inject constructor(
     private val sessionRecordRepository: SessionRecordRepository,
     private val studentRepository: StudentRepository,
-    private val coursePackageRepository: CoursePackageRepository,
     private val earningRepository: EarningRepository
 ) : ViewModel() {
 
@@ -133,19 +131,25 @@ class SessionViewModel @Inject constructor(
     fun recordSession(
         studentId: Long, date: Long, startTime: String, endTime: String,
         location: String, content: String, student: Student,
-        amount: Double, paymentStatus: PaymentStatus, onComplete: () -> Unit
+        amount: Double, paymentStatus: PaymentStatus, onComplete: (String?) -> Unit
     ) {
         viewModelScope.launch {
             if (student.paymentType == PaymentType.PREPAID) {
-                val packages = coursePackageRepository.getAvailablePackages(studentId)
-                if (packages.isNotEmpty()) {
-                    val pkg = packages.first()
-                    coursePackageRepository.incrementUsedCount(pkg.id)
-                    sessionRecordRepository.insert(SessionRecord(
-                        studentId = studentId, date = date, startTime = startTime,
-                        endTime = endTime, location = location, content = content,
-                        paymentStatus = PaymentStatus.PAID, amount = 0.0, coursePackageId = pkg.id
+                val record = SessionRecord(
+                    studentId = studentId, date = date, startTime = startTime,
+                    endTime = endTime, location = location, content = content,
+                    paymentStatus = PaymentStatus.PAID, amount = 0.0
+                )
+                val deducted = sessionRecordRepository.insertPrepaidSession(record)
+                if (!deducted) {
+                    // 课时包已用完：记录照存、不扣次，标记待收费，避免数据丢失
+                    sessionRecordRepository.insert(record.copy(
+                        paymentStatus = PaymentStatus.UNPAID,
+                        amount = 0.0
                     ))
+                    onComplete("课时包已用完，本次已记录但未扣课时，可在记录中补记收费")
+                } else {
+                    onComplete(null)
                 }
             } else if (student.paymentType == PaymentType.MONTHLY) {
                 sessionRecordRepository.insert(SessionRecord(
@@ -153,19 +157,72 @@ class SessionViewModel @Inject constructor(
                     endTime = endTime, location = location, content = content,
                     paymentStatus = PaymentStatus.PAID, amount = 0.0, settlementId = -1
                 ))
+                onComplete(null)
             } else {
-                val recordId = sessionRecordRepository.insert(SessionRecord(
+                val record = SessionRecord(
                     studentId = studentId, date = date, startTime = startTime,
                     endTime = endTime, location = location, content = content,
                     paymentStatus = paymentStatus, amount = amount
-                ))
-                if (paymentStatus == PaymentStatus.PAID) {
-                    earningRepository.insert(Earning(
-                        studentId = studentId, type = EarningType.SESSION_PAYMENT,
-                        amount = amount, sessionId = recordId, date = date
-                    ))
+                )
+                if (paymentStatus == PaymentStatus.PAID && amount > 0) {
+                    sessionRecordRepository.insertSessionWithEarning(
+                        record,
+                        Earning(
+                            studentId = studentId, type = EarningType.SESSION_PAYMENT,
+                            amount = amount, date = date
+                        )
+                    )
+                } else {
+                    sessionRecordRepository.insert(record)
                 }
+                onComplete(null)
             }
+            val state = _listUiState.value
+            loadRecordsForMonth(state.currentYear, state.currentMonth)
+        }
+    }
+
+    fun getRecordOnce(recordId: Long, onLoaded: (SessionRecord?) -> Unit) {
+        viewModelScope.launch {
+            onLoaded(sessionRecordRepository.getRecordByIdOnce(recordId))
+        }
+    }
+
+    fun updateRecord(
+        recordId: Long,
+        date: Long, startTime: String, endTime: String,
+        location: String, content: String,
+        amount: Double, paymentStatus: PaymentStatus,
+        onComplete: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val existing = sessionRecordRepository.getRecordByIdOnce(recordId) ?: return@launch
+            val updated = existing.copy(
+                date = date, startTime = startTime, endTime = endTime,
+                location = location, content = content,
+                amount = amount, paymentStatus = paymentStatus
+            )
+            val earning = if (paymentStatus == PaymentStatus.PAID && amount > 0) {
+                Earning(
+                    studentId = existing.studentId,
+                    type = EarningType.SESSION_PAYMENT,
+                    amount = amount,
+                    date = date
+                )
+            } else {
+                null
+            }
+            sessionRecordRepository.updateRecordWithEarning(updated, earning)
+            val state = _listUiState.value
+            loadRecordsForMonth(state.currentYear, state.currentMonth)
+            onComplete()
+        }
+    }
+
+    fun deleteRecord(recordId: Long, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            val record = sessionRecordRepository.getRecordByIdOnce(recordId) ?: return@launch
+            sessionRecordRepository.deleteRecordAndRelated(record)
             val state = _listUiState.value
             loadRecordsForMonth(state.currentYear, state.currentMonth)
             onComplete()
@@ -175,8 +232,10 @@ class SessionViewModel @Inject constructor(
     fun markAsPaid(recordId: Long) {
         viewModelScope.launch {
             val record = sessionRecordRepository.getRecordByIdOnce(recordId) ?: return@launch
+            if (record.paymentStatus == PaymentStatus.PAID) return@launch
             sessionRecordRepository.updatePaymentStatus(recordId, PaymentStatus.PAID)
-            if (record.amount > 0) {
+            // 防重复入账：已有收入记录则不再写入
+            if (record.amount > 0 && earningRepository.getBySessionId(recordId) == null) {
                 earningRepository.insert(Earning(
                     studentId = record.studentId, type = EarningType.SESSION_PAYMENT,
                     amount = record.amount, sessionId = recordId, date = record.date

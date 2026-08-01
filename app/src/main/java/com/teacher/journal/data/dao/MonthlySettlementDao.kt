@@ -10,6 +10,9 @@ interface MonthlySettlementDao {
     @Query("SELECT * FROM monthly_settlements WHERE studentId = :studentId ORDER BY year DESC, month DESC")
     fun getSettlementsForStudent(studentId: Long): Flow<List<MonthlySettlement>>
 
+    @Query("SELECT * FROM monthly_settlements")
+    suspend fun getAllOnce(): List<MonthlySettlement>
+
     @Query("SELECT * FROM monthly_settlements WHERE studentId = :studentId ORDER BY year DESC, month DESC")
     suspend fun getSettlementsForStudentOnce(studentId: Long): List<MonthlySettlement>
 

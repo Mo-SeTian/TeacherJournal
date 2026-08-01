@@ -11,6 +11,9 @@ interface StudentDao {
     @Query("SELECT * FROM students ORDER BY createdAt DESC")
     fun getAllStudents(): Flow<List<Student>>
 
+    @Query("SELECT * FROM students")
+    suspend fun getAllOnce(): List<Student>
+
     @Query("SELECT * FROM students WHERE id = :id")
     fun getStudentById(id: Long): Flow<Student?>
 
@@ -37,4 +40,8 @@ interface StudentDao {
 
     @Query("DELETE FROM students WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    /** 清空全部数据（子表通过外键级联删除） */
+    @Query("DELETE FROM students")
+    suspend fun deleteAll()
 }

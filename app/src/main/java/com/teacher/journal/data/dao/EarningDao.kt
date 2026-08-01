@@ -10,8 +10,20 @@ interface EarningDao {
     @Query("SELECT * FROM earnings WHERE studentId = :studentId ORDER BY date DESC")
     fun getEarningsForStudent(studentId: Long): Flow<List<Earning>>
 
+    @Query("SELECT * FROM earnings")
+    suspend fun getAllOnce(): List<Earning>
+
     @Query("SELECT * FROM earnings ORDER BY date DESC")
     fun getAllEarnings(): Flow<List<Earning>>
+
+    @Query("SELECT * FROM earnings WHERE sessionId = :sessionId AND sessionId != -1 LIMIT 1")
+    suspend fun getBySessionId(sessionId: Long): Earning?
+
+    @Query("SELECT * FROM earnings WHERE packageId = :packageId AND packageId != -1 LIMIT 1")
+    suspend fun getByPackageId(packageId: Long): Earning?
+
+    @Query("SELECT * FROM earnings WHERE settlementId = :settlementId AND settlementId != -1 LIMIT 1")
+    suspend fun getBySettlementId(settlementId: Long): Earning?
 
     /**
      * 获取本月收入总额
@@ -28,6 +40,12 @@ interface EarningDao {
 
     @Update
     suspend fun update(earning: Earning)
+
+    @Query("DELETE FROM earnings WHERE sessionId = :sessionId AND sessionId != -1")
+    suspend fun deleteBySessionId(sessionId: Long)
+
+    @Query("DELETE FROM earnings WHERE settlementId = :settlementId AND settlementId != -1")
+    suspend fun deleteBySettlementId(settlementId: Long)
 
     @Delete
     suspend fun delete(earning: Earning)

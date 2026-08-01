@@ -12,7 +12,11 @@ enum class EarningType {
     /** 课时包购买 */
     PACKAGE_PURCHASE,
     /** 单次课时费 */
-    SESSION_PAYMENT
+    SESSION_PAYMENT,
+    /** 课时包退款（金额为负数） */
+    PACKAGE_REFUND,
+    /** 月结算收款 */
+    MONTHLY_SETTLEMENT
 }
 
 /**
@@ -45,6 +49,8 @@ data class Earning(
     val sessionId: Long = -1,
     /** 关联课时包 ID（购买课时包时使用，-1 表示不关联） */
     val packageId: Long = -1,
+    /** 关联月结算 ID（月结算收款时使用，-1 表示不关联） */
+    val settlementId: Long = -1,
     /** 备注 */
     val notes: String = ""
 )

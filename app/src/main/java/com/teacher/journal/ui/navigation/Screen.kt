@@ -22,8 +22,8 @@ sealed class Screen(val route: String) {
     data object StudentEdit : Screen("student_edit/{studentId}") {
         fun createRoute(studentId: Long = -1) = "student_edit/$studentId"
     }
-    data object SessionRecord : Screen("session_record/{studentId}") {
-        fun createRoute(studentId: Long = -1) = "session_record/$studentId"
+    data object SessionRecord : Screen("session_record/{studentId}/{recordId}") {
+        fun createRoute(studentId: Long = -1, recordId: Long = -1) = "session_record/$studentId/$recordId"
     }
     data object PackagePurchase : Screen("package_purchase/{studentId}") {
         fun createRoute(studentId: Long) = "package_purchase/$studentId"

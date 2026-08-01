@@ -22,6 +22,7 @@ import com.teacher.journal.ui.coursepackage.PackagePurchaseScreen
 import com.teacher.journal.ui.session.SessionListScreen
 import com.teacher.journal.ui.session.SessionRecordScreen
 import com.teacher.journal.ui.settlement.MonthlySettlementScreen
+import com.teacher.journal.ui.settings.SettingsScreen
 import com.teacher.journal.ui.student.StudentDetailScreen
 import com.teacher.journal.ui.student.StudentEditScreen
 import com.teacher.journal.ui.student.StudentListScreen
@@ -117,7 +118,11 @@ fun AppNavigation() {
             }
 
             composable(Screen.RecordList.route) {
-                SessionListScreen()
+                SessionListScreen(
+                    onEditRecord = { studentId, recordId ->
+                        navController.navigate(Screen.SessionRecord.createRoute(studentId, recordId))
+                    }
+                )
             }
 
             composable(
@@ -139,6 +144,9 @@ fun AppNavigation() {
                     onNavigateToMonthlySettlement = {
                         navController.navigate(Screen.MonthlySettlement.createRoute(studentId))
                     },
+                    onEditRecord = { recordId ->
+                        navController.navigate(Screen.SessionRecord.createRoute(studentId, recordId))
+                    },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -156,11 +164,16 @@ fun AppNavigation() {
 
             composable(
                 route = Screen.SessionRecord.route,
-                arguments = listOf(navArgument("studentId") { type = NavType.LongType })
+                arguments = listOf(
+                    navArgument("studentId") { type = NavType.LongType },
+                    navArgument("recordId") { type = NavType.LongType }
+                )
             ) { backStackEntry ->
                 val studentId = backStackEntry.arguments?.getLong("studentId") ?: -1L
+                val recordId = backStackEntry.arguments?.getLong("recordId") ?: -1L
                 SessionRecordScreen(
                     preselectedStudentId = if (studentId == -1L) null else studentId,
+                    recordId = recordId,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
@@ -186,7 +199,7 @@ fun AppNavigation() {
                 )
             }
             composable(Screen.Settings.route) {
-                com.teacher.journal.ui.settings.SettingsScreen(
+                SettingsScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

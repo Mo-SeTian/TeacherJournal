@@ -31,6 +31,12 @@ data class CoursePackage(
     val usedCount: Int = 0,
     /** 购买金额 */
     val amount: Double = 0.0,
+    /** 已退款次数（0 表示未退款） */
+    val refundedSessions: Int = 0,
+    /** 退款金额 */
+    val refundAmount: Double = 0.0,
+    /** 退款日期（毫秒时间戳，-1 表示未退款） */
+    val refundDate: Long = -1,
     /** 购买日期（毫秒时间戳） */
     val purchaseDate: Long = System.currentTimeMillis(),
     /** 备注 */
@@ -41,4 +47,7 @@ data class CoursePackage(
 
     /** 是否已用完 */
     val isExhausted: Boolean get() = remainingSessions <= 0
+
+    /** 是否已退款 */
+    val isRefunded: Boolean get() = refundedSessions > 0
 }

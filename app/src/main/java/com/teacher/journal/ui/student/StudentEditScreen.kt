@@ -1,23 +1,24 @@
 package com.teacher.journal.ui.student
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.EventNote
+import androidx.compose.material.icons.outlined.MoneyOff
+import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.data.entity.PaymentType
-import com.teacher.journal.data.entity.Student
-import androidx.compose.ui.graphics.Color
-import com.teacher.journal.ui.theme.*
+import com.teacher.journal.ui.components.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StudentEditScreen(
     studentId: Long?,
@@ -37,14 +38,12 @@ fun StudentEditScreen(
     var notes by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf(false) }
 
-    // 加载现有数据
     LaunchedEffect(studentId) {
         if (studentId != null) {
             viewModel.loadStudentDetail(studentId)
         }
     }
 
-    // 填充表单
     LaunchedEffect(uiState.student) {
         val s = uiState.student
         if (isEditing && s != null && name.isEmpty()) {
@@ -60,18 +59,11 @@ fun StudentEditScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
-                title = { Text(if (isEditing) "编辑学生" else "添加学生") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
+            AppTopBar(
+                title = if (isEditing) "编辑学生" else "添加学生",
+                onBack = onNavigateBack
             )
         }
     ) { padding ->
@@ -81,152 +73,83 @@ fun StudentEditScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
-            // 姓名
-            OutlinedTextField(
+            AppTextField(
                 value = name,
                 onValueChange = { name = it; nameError = false },
-                label = { Text("姓名 *") },
-                modifier = Modifier.fillMaxWidth(),
+                label = "姓名 *",
                 isError = nameError,
-                supportingText = if (nameError) {{ Text("请输入学生姓名") }} else null,
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
+                supportingText = if (nameError) "请输入学生姓名" else null
             )
 
-            // 电话
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                label = { Text("联系电话") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
-            )
+            AppTextField(value = phone, onValueChange = { phone = it }, label = "联系电话")
+            AppTextField(value = subject, onValueChange = { subject = it }, label = "所学科目")
+            AppTextField(value = location, onValueChange = { location = it }, label = "默认上课地点")
 
-            // 科目
-            OutlinedTextField(
-                value = subject,
-                onValueChange = { subject = it },
-                label = { Text("所学科目") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
-            )
-
-            // 默认地点
-            OutlinedTextField(
-                value = location,
-                onValueChange = { location = it },
-                label = { Text("默认上课地点") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
-            )
-
-            // 付费类型
-            Text(
-                "付费类型",
-                style = MaterialTheme.typography.titleSmall,
-                color = TextPrimary
-            )
+            Text("付费类型", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = AppTextSecondary,
+                modifier = Modifier.padding(top = 4.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
+                TypeChip(
+                    label = "课时包",
+                    icon = Icons.Outlined.EventNote,
                     selected = paymentType == PaymentType.PREPAID,
-                    onClick = { paymentType = PaymentType.PREPAID },
-                    label = { Text("课时包") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Primary.copy(alpha = 0.15f),
-                        selectedLabelColor = Primary
-                    )
+                    color = AppSuccess,
+                    onClick = { paymentType = PaymentType.PREPAID }
                 )
-                FilterChip(
+                TypeChip(
+                    label = "按次付",
+                    icon = Icons.Outlined.MoneyOff,
                     selected = paymentType == PaymentType.PER_SESSION,
-                    onClick = { paymentType = PaymentType.PER_SESSION },
-                    label = { Text("按次付") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Tertiary.copy(alpha = 0.15f),
-                        selectedLabelColor = Tertiary
-                    )
+                    color = AppWarning,
+                    onClick = { paymentType = PaymentType.PER_SESSION }
                 )
-                FilterChip(
+                TypeChip(
+                    label = "月结算",
+                    icon = Icons.Outlined.Payments,
                     selected = paymentType == PaymentType.MONTHLY,
-                    onClick = { paymentType = PaymentType.MONTHLY },
-                    label = { Text("月结算") },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Secondary.copy(alpha = 0.15f),
-                        selectedLabelColor = Secondary
-                    )
+                    color = MaterialTheme.colorScheme.primary,
+                    onClick = { paymentType = PaymentType.MONTHLY }
                 )
             }
 
-            // 月薪字段（仅月结算模式显示）
             if (paymentType == PaymentType.MONTHLY) {
-                OutlinedTextField(
+                AppTextField(
                     value = monthlyRate,
                     onValueChange = { monthlyRate = it },
-                    label = { Text("月薪/月费（元，可选）") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    prefix = { Text("¥") },
-                    supportingText = { Text("创建结算时自动填充此金额，可手动修改") },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        focusedLabelColor = Primary
-                    )
+                    label = "月薪/月费（元，可选）",
+                    prefix = "¥",
+                    supportingText = "创建结算时自动填充此金额，可手动修改"
                 )
-                Spacer(Modifier.height(12.dp))
-                OutlinedTextField(
+                AppTextField(
                     value = settlementDay,
-                    onValueChange = { s -> s.toIntOrNull()?.let { v -> if (v in 1..28) settlementDay = v.toString() } },
-                    label = { Text("每月结算日（1-28）") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    suffix = { Text("日") },
-                    supportingText = { Text("每月此日自动提醒创建月结算") },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        focusedLabelColor = Primary
-                    )
+                    onValueChange = { s ->
+                        s.toIntOrNull()?.let { v -> if (v in 1..28) settlementDay = v.toString() }
+                    },
+                    label = "每月结算日（1-28）",
+                    suffix = "日",
+                    supportingText = "按结算日切分账期：如 25 日，即每月 25 日结上一账期"
                 )
             }
 
-            // 备注
-            OutlinedTextField(
+            AppTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("备注") },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
+                label = "备注",
+                singleLine = false,
+                maxLines = 3
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
 
-            // 保存按钮
-            Button(
+            AppPrimaryButton(
+                text = if (isEditing) "保存修改" else "添加学生",
                 onClick = {
                     if (name.isBlank()) {
                         nameError = true
-                        return@Button
+                        return@AppPrimaryButton
                     }
                     if (isEditing && studentId != null) {
                         viewModel.updateStudent(
@@ -252,17 +175,35 @@ fun StudentEditScreen(
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     }
-                },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-            ) {
-                Text(
-                    if (isEditing) "保存修改" else "添加学生",
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
+                }
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
         }
     }
+}
+
+@Composable
+private fun TypeChip(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    selected: Boolean,
+    color: androidx.compose.ui.graphics.Color,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(15.dp))
+                Spacer(Modifier.width(5.dp))
+                Text(label, fontSize = 13.sp)
+            }
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = color.copy(alpha = 0.14f),
+            selectedLabelColor = color
+        )
+    )
 }

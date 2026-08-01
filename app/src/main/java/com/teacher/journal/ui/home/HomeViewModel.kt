@@ -172,12 +172,13 @@ class HomeViewModel @Inject constructor(
     fun markAsPaid(recordId: Long) {
         viewModelScope.launch {
             val record = sessionRecordRepository.getRecordByIdOnce(recordId) ?: return@launch
+            if (record.paymentStatus == com.teacher.journal.data.entity.PaymentStatus.PAID) return@launch
             sessionRecordRepository.updatePaymentStatus(
                 recordId,
                 com.teacher.journal.data.entity.PaymentStatus.PAID
             )
-            // 记录收入，日期用实际上课日
-            if (record.amount > 0) {
+            // 记录收入（幂等），日期用实际上课日
+            if (record.amount > 0 && earningRepository.getBySessionId(recordId) == null) {
                 earningRepository.insert(
                     com.teacher.journal.data.entity.Earning(
                         studentId = record.studentId,

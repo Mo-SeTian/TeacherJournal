@@ -1,35 +1,44 @@
 package com.teacher.journal.ui.session
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.EventNote
+import androidx.compose.material.icons.outlined.MoneyOff
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.*
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.data.entity.PaymentStatus
 import com.teacher.journal.data.entity.PaymentType
+import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.data.entity.Student
-import androidx.compose.ui.graphics.Color
-import com.teacher.journal.ui.theme.*
+import com.teacher.journal.ui.components.*
 import com.teacher.journal.util.DateUtils
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionRecordScreen(
     preselectedStudentId: Long?,
+    recordId: Long,
     onNavigateBack: () -> Unit,
     viewModel: SessionViewModel = hiltViewModel()
 ) {
     val students by viewModel.allStudents.collectAsState()
+    val isEditing = recordId > 0
 
     var selectedStudent by remember { mutableStateOf<Student?>(null) }
     var date by remember { mutableStateOf(DateUtils.getTodayStart()) }
@@ -44,42 +53,66 @@ fun SessionRecordScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var loadedRecord by remember { mutableStateOf<SessionRecord?>(null) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var startPickerHour by remember { mutableStateOf(14) }
+    var endPickerHour by remember { mutableStateOf(16) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(message) {
+        message?.let {
+            snackbarHostState.showSnackbar(it)
+            message = null
+        }
+    }
+
+    // 编辑模式：加载记录
+    LaunchedEffect(recordId) {
+        if (isEditing) {
+            viewModel.getRecordOnce(recordId) { record ->
+                if (record != null) {
+                    loadedRecord = record
+                    selectedStudent = students.find { it.id == record.studentId } ?: selectedStudent
+                    date = record.date
+                    startTime = record.startTime
+                    endTime = record.endTime
+                    location = record.location
+                    content = record.content
+                    amount = if (record.amount > 0) String.format("%.0f", record.amount) else ""
+                    paymentStatus = record.paymentStatus
+                }
+            }
+        }
+    }
 
     // 预选学生
     LaunchedEffect(preselectedStudentId, students) {
-        if (preselectedStudentId != null && selectedStudent == null) {
+        if (!isEditing && preselectedStudentId != null && selectedStudent == null) {
             selectedStudent = students.find { it.id == preselectedStudentId }
-            // 预填默认地点
             location = selectedStudent?.location ?: ""
         }
     }
 
-    // 学生变化时预填地点
     LaunchedEffect(selectedStudent) {
-        if (selectedStudent != null && location.isBlank()) {
+        if (!isEditing && selectedStudent != null && location.isBlank()) {
             location = selectedStudent?.location ?: ""
         }
     }
 
-    var dateError by remember { mutableStateOf(false) }
+    var studentError by remember { mutableStateOf(false) }
     var startTimeError by remember { mutableStateOf(false) }
     var endTimeError by remember { mutableStateOf(false) }
-    var studentError by remember { mutableStateOf(false) }
     var amountError by remember { mutableStateOf(false) }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(windowInsets = WindowInsets(0,0,0,0),
-                title = { Text("记录上课") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "返回", tint = MaterialTheme.colorScheme.primary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
+            AppTopBar(
+                title = if (isEditing) "编辑记录" else "记录上课",
+                onBack = onNavigateBack
             )
         }
     ) { padding ->
@@ -89,28 +122,24 @@ fun SessionRecordScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
             // 选择学生
             ExposedDropdownMenuBox(
                 expanded = studentExpanded,
-                onExpandedChange = { studentExpanded = it }
+                onExpandedChange = { if (!isEditing) studentExpanded = it }
             ) {
-                OutlinedTextField(
+                AppTextField(
                     value = selectedStudent?.name ?: "",
                     onValueChange = {},
+                    label = "选择学生 *",
                     readOnly = true,
-                    label = { Text("选择学生 *") },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(),
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = studentExpanded) },
                     isError = studentError,
-                    supportingText = if (studentError) {{ Text("请选择学生") }} else null,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        focusedLabelColor = Primary
-                    )
+                    supportingText = if (studentError) "请选择学生" else null,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = studentExpanded) },
+                    modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
                     expanded = studentExpanded,
@@ -121,12 +150,8 @@ fun SessionRecordScreen(
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(student.name)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = if (student.paymentType == PaymentType.PREPAID) "预付费" else "按次付",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = TextTertiary
-                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    AppTypeBadge(student.paymentType)
                                 }
                             },
                             onClick = {
@@ -140,214 +165,207 @@ fun SessionRecordScreen(
             }
 
             // 日期
-            OutlinedTextField(
+            AppTextField(
                 value = DateUtils.formatDateFull(date),
                 onValueChange = {},
+                label = "上课日期",
                 readOnly = true,
-                label = { Text("上课日期") },
-                modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     IconButton(onClick = { showDatePicker = true }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "选择日期")
+                        Icon(Icons.Outlined.CalendarMonth, contentDescription = "选择日期",
+                            tint = MaterialTheme.colorScheme.primary)
                     }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
+                }
             )
 
             // 时间
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
+                AppTextField(
                     value = startTime,
                     onValueChange = { startTime = it; startTimeError = false },
-                    label = { Text("开始时间") },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("HH:mm") },
-                    singleLine = true,
+                    label = "开始时间",
+                    placeholder = "HH:mm",
                     isError = startTimeError,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        focusedLabelColor = Primary
-                    )
+                    supportingText = if (startTimeError) "必填" else null,
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            val h = startTime.split(":").getOrNull(0)?.toIntOrNull()
+                            showStartTimePicker = true
+                            startPickerHour = h ?: 14
+                        }) {
+                            Icon(Icons.Outlined.Schedule, contentDescription = "选择开始时间",
+                                tint = MaterialTheme.colorScheme.primary)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
                 )
-                OutlinedTextField(
+                AppTextField(
                     value = endTime,
                     onValueChange = { endTime = it; endTimeError = false },
-                    label = { Text("结束时间") },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("HH:mm") },
-                    singleLine = true,
+                    label = "结束时间",
+                    placeholder = "HH:mm",
                     isError = endTimeError,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        focusedLabelColor = Primary
-                    )
+                    supportingText = if (endTimeError) "必填" else null,
+                    trailingIcon = {
+                        IconButton(onClick = {
+                            val h = endTime.split(":").getOrNull(0)?.toIntOrNull()
+                            showEndTimePicker = true
+                            endPickerHour = h ?: 16
+                        }) {
+                            Icon(Icons.Outlined.Schedule, contentDescription = "选择结束时间",
+                                tint = MaterialTheme.colorScheme.primary)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
                 )
             }
 
             // 地点
-            OutlinedTextField(
+            AppTextField(
                 value = location,
                 onValueChange = { location = it },
-                label = { Text("上课地点") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
+                label = "上课地点",
+                singleLine = true
             )
 
             // 课程内容
-            OutlinedTextField(
+            AppTextField(
                 value = content,
                 onValueChange = { content = it },
-                label = { Text("课程内容 / 备注") },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
-                )
+                label = "课程内容 / 备注",
+                singleLine = false,
+                maxLines = 3
             )
 
-            // 扣除方式 / 收费（根据学生类型）
+            // 收费区域
             selectedStudent?.let { student ->
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
                 if (student.paymentType == PaymentType.PREPAID) {
-                    Text(
-                        "📦 将从课时包中扣除 1 次",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Secondary
-                    )
+                    val packageHint = if (isEditing) "预付费学生 · 本记录不重新扣课时" else "将从课时包中自动扣除 1 次"
+                    InfoBanner(Icons.Outlined.EventNote, packageHint, MaterialTheme.colorScheme.primary)
                 } else if (student.paymentType == PaymentType.MONTHLY) {
-                    Text(
-                        "📅 月结算模式 — 记录将归入本月结算",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Secondary
-                    )
+                    InfoBanner(Icons.Outlined.EventNote, "月结算模式 · 记录将归入对应结算周期", MaterialTheme.colorScheme.primary)
                 } else {
-                    // 按次付费：金额 + 收费状态
-                    Text(
-                        "💰 按次付费",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-                    )
-
-                    OutlinedTextField(
+                    InfoBanner(Icons.Outlined.Payments, "按次付费", MaterialTheme.colorScheme.primary)
+                    AppTextField(
                         value = amount,
                         onValueChange = { amount = it; amountError = false },
-                        label = { Text("本次课时费（元）") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
+                        label = "本次课时费（元）",
+                        prefix = "¥",
                         isError = amountError,
-                        supportingText = if (amountError) {{ Text("请输入课时费金额") }} else null,
-                        prefix = { Text("¥") },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            focusedLabelColor = Primary
-                        )
+                        supportingText = if (amountError) "请输入课时费金额" else null
                     )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        FilterChip(
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        PaymentChip(
+                            label = "已收费",
+                            icon = Icons.Outlined.CheckCircle,
                             selected = paymentStatus == PaymentStatus.PAID,
-                            onClick = { paymentStatus = PaymentStatus.PAID },
-                            label = { Text("✅ 已收费") },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = StatusPaid.copy(alpha = 0.15f),
-                                selectedLabelColor = StatusPaid
-                            )
+                            color = AppSuccess,
+                            onClick = { paymentStatus = PaymentStatus.PAID }
                         )
-                        FilterChip(
+                        PaymentChip(
+                            label = "待收费",
+                            icon = Icons.Outlined.MoneyOff,
                             selected = paymentStatus == PaymentStatus.UNPAID,
-                            onClick = { paymentStatus = PaymentStatus.UNPAID },
-                            label = { Text("🟡 待收费") },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = StatusUnpaid.copy(alpha = 0.15f),
-                                selectedLabelColor = StatusUnpaid
-                            )
+                            color = AppWarning,
+                            onClick = { paymentStatus = PaymentStatus.UNPAID }
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
 
-            // 保存
-            Button(
+            AppPrimaryButton(
+                text = if (isEditing) "保存修改" else "保存记录",
                 onClick = {
                     var hasError = false
-                    if (selectedStudent == null) {
+                    if (selectedStudent == null && !isEditing) {
                         studentError = true
                         hasError = true
                     }
-                    if (startTime.isBlank()) {
-                        startTimeError = true
-                        hasError = true
-                    }
-                    if (endTime.isBlank()) {
-                        endTimeError = true
-                        hasError = true
-                    }
+                    if (startTime.isBlank()) { startTimeError = true; hasError = true }
+                    if (endTime.isBlank()) { endTimeError = true; hasError = true }
                     if (selectedStudent?.paymentType == PaymentType.PER_SESSION && amount.isBlank()) {
                         amountError = true
                         hasError = true
                     }
-                    if (hasError) return@Button
+                    if (hasError) return@AppPrimaryButton
 
-                    viewModel.recordSession(
-                        studentId = selectedStudent!!.id,
-                        date = date,
-                        startTime = startTime.trim(),
-                        endTime = endTime.trim(),
-                        location = location.trim(),
-                        content = content.trim(),
-                        student = selectedStudent!!,
-                        amount = amount.toDoubleOrNull() ?: 0.0,
-                        paymentStatus = paymentStatus,
-                        onComplete = { onNavigateBack() }
-                    )
-                },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-            ) {
-                Text("保存记录", style = MaterialTheme.typography.titleSmall)
+                    val student = selectedStudent
+                    if (isEditing && loadedRecord != null) {
+                        viewModel.updateRecord(
+                            recordId = recordId,
+                            date = date,
+                            startTime = startTime.trim(),
+                            endTime = endTime.trim(),
+                            location = location.trim(),
+                            content = content.trim(),
+                            amount = amount.toDoubleOrNull() ?: 0.0,
+                            paymentStatus = paymentStatus,
+                            onComplete = { onNavigateBack() }
+                        )
+                    } else if (student != null) {
+                        viewModel.recordSession(
+                            studentId = student.id,
+                            date = date,
+                            startTime = startTime.trim(),
+                            endTime = endTime.trim(),
+                            location = location.trim(),
+                            content = content.trim(),
+                            student = student,
+                            amount = amount.toDoubleOrNull() ?: 0.0,
+                            paymentStatus = paymentStatus
+                        ) { warning ->
+                            if (warning != null) {
+                                message = warning
+                                scope.launch {
+                                    delay(1800)
+                                    onNavigateBack()
+                                }
+                            } else {
+                                onNavigateBack()
+                            }
+                        }
+                    }
+                }
+            )
+
+            if (isEditing) {
+                OutlinedButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppError.copy(alpha = 0.4f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AppError)
+                ) {
+                    Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("删除这条记录", fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
         }
     }
 
-    // 日期选择器
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = date
-        )
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = date)
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { date = it }
                     showDatePicker = false
-                }) {
-                    Text("确定")
-                }
+                }) { Text("确定") }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("取消")
-                }
+                TextButton(onClick = { showDatePicker = false }) { Text("取消") }
             }
         ) {
             DatePicker(state = datePickerState)
         }
     }
 
-    // 时间选择器
     if (showStartTimePicker) {
         TimePickerDialog(
             onDismiss = { showStartTimePicker = false },
@@ -355,8 +373,7 @@ fun SessionRecordScreen(
                 startTime = String.format("%02d:%02d", hour, minute)
                 showStartTimePicker = false
             },
-            initialHour = 14,
-            initialMinute = 0
+            initialHour = startPickerHour
         )
     }
     if (showEndTimePicker) {
@@ -366,10 +383,67 @@ fun SessionRecordScreen(
                 endTime = String.format("%02d:%02d", hour, minute)
                 showEndTimePicker = false
             },
-            initialHour = 16,
-            initialMinute = 0
+            initialHour = endPickerHour
         )
     }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("删除上课记录") },
+            text = { Text("删除后关联收入一并清除，已扣课时将自动回补。") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.deleteRecord(recordId) { onNavigateBack() }
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = AppError)
+                ) { Text("删除") }
+            },
+            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text("取消") } }
+        )
+    }
+}
+
+@Composable
+private fun InfoBanner(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+        color = color.copy(alpha = 0.08f)
+    ) {
+        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(text, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = color)
+        }
+    }
+}
+
+@Composable
+private fun PaymentChip(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    selected: Boolean,
+    color: Color,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(15.dp))
+                Spacer(Modifier.width(5.dp))
+                Text(label, fontSize = 13.sp)
+            }
+        },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = color.copy(alpha = 0.14f),
+            selectedLabelColor = color
+        )
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -378,7 +452,7 @@ fun TimePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (Int, Int) -> Unit,
     initialHour: Int,
-    initialMinute: Int
+    initialMinute: Int = 0
 ) {
     val state = rememberTimePickerState(
         initialHour = initialHour,
@@ -389,22 +463,15 @@ fun TimePickerDialog(
         onDismissRequest = onDismiss,
         title = { Text("选择时间") },
         text = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 TimePicker(state = state)
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(state.hour, state.minute) }) {
-                Text("确定")
-            }
+            TextButton(onClick = { onConfirm(state.hour, state.minute) }) { Text("确定") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("取消")
-            }
+            TextButton(onClick = onDismiss) { Text("取消") }
         }
     )
 }

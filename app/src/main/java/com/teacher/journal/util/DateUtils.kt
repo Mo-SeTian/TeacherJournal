@@ -1,80 +1,90 @@
 package com.teacher.journal.util
 
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 object DateUtils {
 
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
-    private val dateDisplayFormat = SimpleDateFormat("MM/dd", Locale.CHINA)
-    private val fullDisplayFormat = SimpleDateFormat("yyyy年M月d日", Locale.CHINA)
-    private val monthFormat = SimpleDateFormat("yyyy年M月", Locale.CHINA)
-    private val weekdayFormat = SimpleDateFormat("EEEE", Locale.CHINA)
+    private val zone: ZoneId = ZoneId.systemDefault()
 
-    fun formatDate(timestamp: Long): String = dateFormat.format(Date(timestamp))
+    private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.CHINA)
+    private val dateDisplayFormat = DateTimeFormatter.ofPattern("MM/dd", Locale.CHINA)
+    private val fullDisplayFormat = DateTimeFormatter.ofPattern("yyyy年M月d日", Locale.CHINA)
+    private val monthFormat = DateTimeFormatter.ofPattern("yyyy年M月", Locale.CHINA)
+    private val weekdayFormat = DateTimeFormatter.ofPattern("EEEE", Locale.CHINA)
+    private val dayMonthFormat = DateTimeFormatter.ofPattern("M月d日", Locale.CHINA)
 
-    fun formatDateDisplay(timestamp: Long): String = dateDisplayFormat.format(Date(timestamp))
+    private fun toLocalDate(timestamp: Long): LocalDate =
+        Instant.ofEpochMilli(timestamp).atZone(zone).toLocalDate()
 
-    fun formatDateFull(timestamp: Long): String = fullDisplayFormat.format(Date(timestamp))
+    private fun startOfDay(date: LocalDate): Long =
+        date.atStartOfDay(zone).toInstant().toEpochMilli()
 
-    fun formatMonth(timestamp: Long): String = monthFormat.format(Date(timestamp))
+    fun formatDate(timestamp: Long): String = dateFormat.format(toLocalDate(timestamp))
 
-    fun getWeekday(timestamp: Long): String = weekdayFormat.format(Date(timestamp))
+    fun formatDateDisplay(timestamp: Long): String = dateDisplayFormat.format(toLocalDate(timestamp))
+
+    fun formatDateFull(timestamp: Long): String = fullDisplayFormat.format(toLocalDate(timestamp))
+
+    fun formatMonth(timestamp: Long): String = monthFormat.format(toLocalDate(timestamp))
+
+    fun formatDayMonth(timestamp: Long): String = dayMonthFormat.format(toLocalDate(timestamp))
+
+    fun getWeekday(timestamp: Long): String = weekdayFormat.format(toLocalDate(timestamp))
+
+    /** 结算周期标签：如 "7月25日 - 8月24日" */
+    fun formatWindow(window: Pair<Long, Long>): String =
+        "${formatDayMonth(window.first)} - ${formatDayMonth(window.second - 1)}"
 
     /**
      * 获取指定月份的第一天零点时间戳
      */
     fun getStartOfMonth(year: Int, month: Int): Long {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, month)
-            set(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        return calendar.timeInMillis
+        return startOfDay(LocalDate.of(year, month + 1, 1))
     }
 
     /**
-     * 获取指定月份的最后一天 23:59:59 时间戳
+     * 获取指定月份的最后一天 23:59:59.999 时间戳
      */
     fun getEndOfMonth(year: Int, month: Int): Long {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, month)
-            set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-            set(Calendar.MILLISECOND, 999)
-        }
-        return calendar.timeInMillis
+        return startOfDay(LocalDate.of(year, month + 1, 1).plusMonths(1)) - 1
     }
 
     /**
-     * 获取当前月份的起止时间戳
+     * 结算周期（标签月 M）：从 M 月结算日零点，到 M+1 月结算日零点（左闭右开）。
+     * 结算日为 1 时即自然月。
      */
+    fun getSettlementWindow(year: Int, month: Int, settlementDay: Int): Pair<Long, Long> {
+        val startMonth = LocalDate.of(year, month + 1, 1)
+        val start = startOfDay(startMonth.withDayOfMonth(settlementDay.coerceIn(1, 28)))
+        val end = startOfDay(startMonth.plusMonths(1).withDayOfMonth(settlementDay.coerceIn(1, 28)))
+        return start to end
+    }
+
+    /**
+     * 默认结算标签月：最近一个已结束的结算周期。
+     * 例如结算日 25 号，8 月 5 日打开 → 6 月（6.25–7.24 已结束）；8 月 30 日打开 → 7 月。
+     */
+    fun getDefaultSettlementMonth(settlementDay: Int): Pair<Int, Int> {
+        val today = LocalDate.now(zone)
+        val monthsAgo = if (today.dayOfMonth >= settlementDay.coerceIn(1, 28)) 1L else 2L
+        val closeMonth = today.minusMonths(monthsAgo)
+        return closeMonth.year to closeMonth.monthValue - 1
+    }
+
     fun getCurrentMonthRange(): Pair<Long, Long> {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        return getStartOfMonth(year, month) to getEndOfMonth(year, month)
+        val today = LocalDate.now(zone)
+        return getStartOfMonth(today.year, today.monthValue - 1) to
+                getEndOfMonth(today.year, today.monthValue - 1)
     }
 
     /**
      * 获取今日零时时间戳
      */
-    fun getTodayStart(): Long {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        return calendar.timeInMillis
-    }
+    fun getTodayStart(): Long = startOfDay(LocalDate.now(zone))
 
     /**
      * 判断时间戳是否超过 N 天
@@ -88,7 +98,7 @@ object DateUtils {
      * 获取当前年月
      */
     fun getCurrentYearMonth(): Pair<Int, Int> {
-        val calendar = Calendar.getInstance()
-        return calendar.get(Calendar.YEAR) to calendar.get(Calendar.MONTH)
+        val today = LocalDate.now(zone)
+        return today.year to today.monthValue - 1
     }
 }

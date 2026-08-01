@@ -25,6 +25,18 @@ class EarningRepository @Inject constructor(
     suspend fun update(earning: Earning) =
         earningDao.update(earning)
 
+    suspend fun getBySessionId(sessionId: Long): Earning? =
+        earningDao.getBySessionId(sessionId)
+
+    suspend fun getBySettlementId(settlementId: Long): Earning? =
+        earningDao.getBySettlementId(settlementId)
+
+    suspend fun deleteBySessionId(sessionId: Long) =
+        earningDao.deleteBySessionId(sessionId)
+
+    suspend fun deleteBySettlementId(settlementId: Long) =
+        earningDao.deleteBySettlementId(settlementId)
+
     suspend fun delete(earning: Earning) =
         earningDao.delete(earning)
 }
