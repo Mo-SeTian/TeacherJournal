@@ -124,7 +124,7 @@ fun SessionRecordScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
             // 选择学生
             ExposedDropdownMenuBox(

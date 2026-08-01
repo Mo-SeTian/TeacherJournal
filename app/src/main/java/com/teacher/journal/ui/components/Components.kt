@@ -61,32 +61,41 @@ fun AppTopBar(
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                title,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        navigationIcon = {
-            if (onBack != null) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "返回",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(top = 10.dp, bottom = 4.dp)
+    ) {
+        TopAppBar(
+            windowInsets = WindowInsets(0, 0, 0, 0),
+            title = {
+                Text(
+                    title,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            navigationIcon = {
+                if (onBack != null) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "返回",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
-            }
-        },
-        actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface
+            },
+            actions = actions,
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                titleContentColor = MaterialTheme.colorScheme.onSurface
+            )
         )
-    )
+    }
 }
 
 // ── 页面大标题 ──
@@ -97,7 +106,7 @@ fun AppScreenTitle(
     subtitle: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)) {
+    Column(modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
         Text(
             title,
             fontSize = 30.sp,

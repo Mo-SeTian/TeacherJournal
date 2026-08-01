@@ -66,16 +66,17 @@ jobs:
         run: |
           APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
           MD5_HASH=$(md5sum "$APK_PATH" | awk '{print $1}')
-          APK_NAME="TeacherJournal-${MD5_HASH}.apk"
+          MD5_SHORT=${MD5_HASH:0:8}
+          APK_NAME="TeacherJournal-${MD5_SHORT}.apk"
           cp "$APK_PATH" "$APK_NAME"
           echo "APK_NAME=$APK_NAME" >> $GITHUB_ENV
-          echo "MD5_HASH=$MD5_HASH" >> $GITHUB_ENV
+          echo "MD5_SHORT=$MD5_SHORT" >> $GITHUB_ENV
           echo "APK generated: $APK_NAME"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TeacherJournal-${{ env.MD5_HASH }}
+          name: TeacherJournal-${{ env.MD5_SHORT }}
           path: ${{ env.APK_NAME }}
           retention-days: 30
 

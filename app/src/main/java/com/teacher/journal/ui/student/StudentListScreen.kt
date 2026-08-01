@@ -38,7 +38,7 @@ fun StudentListScreen(
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp)
         ) {
             item {
                 AppScreenTitle(title = "学生", subtitle = "共 ${uiState.students.size} 位")
