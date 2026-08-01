@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
@@ -62,5 +64,11 @@ val bottomNavItems = listOf(
         route = Screen.RecordList.route,
         selectedIcon = Icons.Filled.ListAlt,
         unselectedIcon = Icons.Outlined.ListAlt
+    ),
+    BottomNavItem(
+        label = "设置",
+        route = Screen.Settings.route,
+        selectedIcon = Icons.Filled.Settings,
+        unselectedIcon = Icons.Outlined.Settings
     )
 )

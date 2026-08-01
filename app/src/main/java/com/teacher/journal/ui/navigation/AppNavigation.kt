@@ -38,7 +38,8 @@ fun AppNavigation() {
     val bottomNavRoutes = listOf(
         Screen.Home.route,
         Screen.StudentList.route,
-        Screen.RecordList.route
+        Screen.RecordList.route,
+        Screen.Settings.route
     )
     val showBottomBar = currentDestination?.route in bottomNavRoutes
 
@@ -99,9 +100,6 @@ fun AppNavigation() {
                     },
                     onNavigateToSessionRecord = {
                         navController.navigate(Screen.SessionRecord.createRoute())
-                    },
-                    onNavigateToSettings = {
-                        navController.navigate(Screen.Settings.route)
                     }
                 )
             }
@@ -200,7 +198,6 @@ fun AppNavigation() {
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(
-                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }

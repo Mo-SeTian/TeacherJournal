@@ -3,6 +3,7 @@ package com.teacher.journal.ui.student
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.outlined.People
 import androidx.compose.material3.*
@@ -25,20 +26,20 @@ fun StudentListScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            AppTopBar(
-                title = "学生",
-                actions = {
-                    IconButton(onClick = onNavigateToAdd) {
-                        Icon(Icons.Filled.PersonAdd, "添加学生", tint = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            )
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavigateToAdd,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = androidx.compose.ui.graphics.Color.White
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "添加学生")
+            }
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 24.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 100.dp)
         ) {
             item {
                 AppScreenTitle(title = "学生", subtitle = "共 ${uiState.students.size} 位")

@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.Payments
@@ -31,7 +30,6 @@ import com.teacher.journal.util.DateUtils
 fun HomeScreen(
     onNavigateToStudentDetail: (Long) -> Unit,
     onNavigateToSessionRecord: () -> Unit,
-    onNavigateToSettings: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -39,16 +37,6 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            AppTopBar(
-                title = "首页",
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Filled.Settings, "设置", tint = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToSessionRecord,
@@ -69,7 +57,7 @@ fun HomeScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 100.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 100.dp)
         ) {
             item {
                 AppScreenTitle(title = "今日", subtitle = TodayLabel())
