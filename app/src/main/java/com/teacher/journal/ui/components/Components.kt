@@ -65,7 +65,7 @@ fun AppTopBar(
         Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(top = 12.dp)
+            .padding(top = 32.dp)
     ) {
         Row(
             Modifier

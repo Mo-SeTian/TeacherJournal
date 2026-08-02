@@ -64,7 +64,7 @@ fun SessionListScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 32.dp),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 24.dp)
         ) {
             item {
