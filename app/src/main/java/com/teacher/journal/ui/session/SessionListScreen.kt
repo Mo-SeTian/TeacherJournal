@@ -28,7 +28,9 @@ import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.ui.components.*
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 
 private val WEEK_LABELS = listOf("一", "二", "三", "四", "五", "六", "日")
 
@@ -38,7 +40,7 @@ fun SessionListScreen(
     viewModel: SessionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
-    var selectedDay by remember { mutableStateOf<CalendarDay?>(null) }
+    var selectedDate by remember { mutableStateOf<Long?>(null) }
     var recordToDelete by remember { mutableStateOf<SessionRecord?>(null) }
     var message by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -79,7 +81,10 @@ fun SessionListScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { viewModel.previousMonth() },
+                        onClick = {
+                            selectedDate = null
+                            viewModel.previousMonth()
+                        },
                         modifier = Modifier.size(38.dp).clip(CircleShape).background(AppFill)
                     ) {
                         Icon(Icons.Filled.ChevronLeft, "上月",
@@ -88,6 +93,7 @@ fun SessionListScreen(
                     Spacer(Modifier.weight(1f))
                     TextButton(onClick = {
                         val (y, m) = DateUtils.getCurrentYearMonth()
+                        selectedDate = DateUtils.getTodayStart()
                         viewModel.loadRecordsForMonth(y, m)
                     }) {
                         Text("回到今天", fontSize = 14.sp,
@@ -96,7 +102,10 @@ fun SessionListScreen(
                     }
                     Spacer(Modifier.weight(1f))
                     IconButton(
-                        onClick = { viewModel.nextMonth() },
+                        onClick = {
+                            selectedDate = null
+                            viewModel.nextMonth()
+                        },
                         modifier = Modifier.size(38.dp).clip(CircleShape).background(AppFill)
                     ) {
                         Icon(Icons.Filled.ChevronRight, "下月",
@@ -142,11 +151,15 @@ fun SessionListScreen(
                                                 CalendarDayCell(
                                                     day = day,
                                                     isToday = isToday,
-                                                    isSelected = !day.isAdjacentMonth && selectedDay == day,
+                                                    isSelected = day.date == selectedDate,
                                                     onClick = {
-                                                        if (!day.isAdjacentMonth) {
-                                                            selectedDay = if (selectedDay == day) null else day
-                                                        }
+                                                        selectedDate = if (selectedDate == day.date) null else day.date
+                                                    },
+                                                    onAdjacentClick = {
+                                                        val local = Instant.ofEpochMilli(day.date)
+                                                            .atZone(ZoneId.systemDefault()).toLocalDate()
+                                                        selectedDate = day.date
+                                                        viewModel.loadRecordsForMonth(local.year, local.monthValue - 1)
                                                     }
                                                 )
                                             }
@@ -158,7 +171,7 @@ fun SessionListScreen(
                     }
                 }
 
-                val sel = selectedDay
+                val sel = uiState.calendarDays.find { it.date == selectedDate }
                 if (sel != null) {
                     item {
                         AppSectionHeader(
@@ -258,15 +271,19 @@ private fun CalendarDayCell(
     day: CalendarDay,
     isToday: Boolean,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onAdjacentClick: () -> Unit = {}
 ) {
     val primary = MaterialTheme.colorScheme.primary
     val hasSessions = day.sessionCount > 0
 
-    // 相邻月份补位：浅色数字，不可点
+    // 相邻月份补位：浅色数字，点击跳转对应月份
     if (day.isAdjacentMonth) {
         Box(
-            Modifier.fillMaxSize(),
+            Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .clickable(onClick = onAdjacentClick),
             contentAlignment = Alignment.Center
         ) {
             Text(
