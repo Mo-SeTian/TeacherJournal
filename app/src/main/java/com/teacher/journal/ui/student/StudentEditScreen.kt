@@ -73,7 +73,7 @@ fun StudentEditScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(Modifier.height(12.dp))
 
@@ -91,7 +91,7 @@ fun StudentEditScreen(
 
             Text("付费类型", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = AppTextSecondary,
                 modifier = Modifier.padding(top = 4.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TypeChip(
                     label = "课时包",
                     icon = Icons.Outlined.EventNote,
@@ -142,7 +142,7 @@ fun StudentEditScreen(
                 maxLines = 3
             )
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
 
             AppPrimaryButton(
                 text = if (isEditing) "保存修改" else "添加学生",
@@ -197,12 +197,12 @@ private fun TypeChip(
         label = {
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Icon(icon, contentDescription = null, modifier = Modifier.size(15.dp))
-                Spacer(Modifier.width(5.dp))
+                Spacer(Modifier.width(6.dp))
                 Text(label, fontSize = 13.sp)
             }
         },
         colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = color.copy(alpha = 0.14f),
+            selectedContainerColor = color.copy(alpha = 0.12f),
             selectedLabelColor = color
         )
     )

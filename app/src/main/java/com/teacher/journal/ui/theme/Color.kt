@@ -2,17 +2,17 @@ package com.teacher.journal.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// 功能色（成功 / 警告 / 错误 / 信息）
-val SuccessGreen = Color(0xFF2E9D7A)
-val SuccessBg = Color(0xFFE6F7F0)
-val WarningOrange = Color(0xFFE0862E)
-val WarningBg = Color(0xFFFFF4E6)
+// 功能色（成功 / 警告 / 错误 / 信息）— 更柔和精致
+val SuccessGreen = Color(0xFF34A87A)
+val SuccessBg = Color(0xFFEDF8F3)
+val WarningOrange = Color(0xFFE8943A)
+val WarningBg = Color(0xFFFFF6EB)
 val ErrorRed = Color(0xFFE5484D)
 val ErrorBg = Color(0xFFFFEDED)
-val InfoBlue = Color(0xFF4D8FCC)
-val InfoBg = Color(0xFFE3F0FD)
+val InfoBlue = Color(0xFF5B9BD5)
+val InfoBg = Color(0xFFEAF1FB)
 
-// 中性文字色
-val TextPrimary = Color(0xFF1A1D21)
-val TextSecondary = Color(0xFF6B7280)
-val TextTertiary = Color(0xFF9CA3AF)
+// 中性文字色 — 更温暖的灰色调
+val TextPrimary = Color(0xFF1C1F26)
+val TextSecondary = Color(0xFF6E7580)
+val TextTertiary = Color(0xFFA1A7B3)

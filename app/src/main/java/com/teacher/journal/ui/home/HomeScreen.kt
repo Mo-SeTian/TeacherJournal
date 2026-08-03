@@ -64,7 +64,7 @@ fun HomeScreen(
         ) {
             item {
                 AppScreenTitle(title = "今日", subtitle = TodayLabel())
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(16.dp))
             }
 
             // 收入主卡
@@ -74,8 +74,8 @@ fun HomeScreen(
 
             // 统计小部件
             item {
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Spacer(Modifier.height(14.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     StatTile(
                         icon = Icons.Outlined.People,
                         color = MaterialTheme.colorScheme.primary,
@@ -201,22 +201,23 @@ private fun HeroIncomeCard(monthlyIncome: Double) {
                     color = Color.White.copy(alpha = 0.85f),
                     fontWeight = FontWeight.Medium
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Text("¥", fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
-                        color = Color.White, modifier = Modifier.padding(bottom = 7.dp))
+                    Text("¥", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                        color = Color.White, modifier = Modifier.padding(bottom = 8.dp))
                     Text(
                         String.format("%,.0f", monthlyIncome),
-                        fontSize = 40.sp,
+                        fontSize = 42.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        lineHeight = 46.sp
+                        lineHeight = 48.sp,
+                        letterSpacing = (-0.5).sp
                     )
                 }
             }
             Box(
-                Modifier.size(46.dp)
-                    .clip(RoundedCornerShape(14.dp))
+                Modifier.size(48.dp)
+                    .clip(RoundedCornerShape(15.dp))
                     .background(Color.White.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -224,17 +225,17 @@ private fun HeroIncomeCard(monthlyIncome: Double) {
                     Icons.Outlined.Payments,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
-        Spacer(Modifier.height(16.dp))
-        HorizontalDivider(color = Color.White.copy(alpha = 0.22f), thickness = 0.7.dp)
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(18.dp))
+        HorizontalDivider(color = Color.White.copy(alpha = 0.2f), thickness = 0.7.dp)
+        Spacer(Modifier.height(14.dp))
         Text(
             "包含课时包购买、课时费与月结算收入",
             fontSize = 11.sp,
-            color = Color.White.copy(alpha = 0.75f)
+            color = Color.White.copy(alpha = 0.7f)
         )
     }
 }
@@ -250,18 +251,18 @@ private fun StatTile(
     modifier: Modifier = Modifier
 ) {
     AppCard(modifier = modifier) {
-        Column(Modifier.padding(14.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Box(
-                Modifier.size(32.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(color.copy(alpha = 0.12f)),
+                Modifier.size(34.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(color.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(17.dp))
             }
-            Spacer(Modifier.height(12.dp))
-            Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(14.dp))
+            Text(value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Spacer(Modifier.height(3.dp))
             Text(label, fontSize = 11.sp, color = AppTextSecondary)
         }
     }
@@ -283,16 +284,16 @@ private fun AlertRow(
         subtitle = subtitle,
         leading = {
             Box(
-                Modifier.size(34.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(color.copy(alpha = 0.12f)),
+                Modifier.size(36.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(color.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(17.dp))
+                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
             }
         },
         trailing = {
-            tag?.let { AppPill(it, color, color.copy(alpha = 0.12f)) }
+            tag?.let { AppPill(it, color, color.copy(alpha = 0.1f)) }
         },
         showChevron = true,
         onClick = onClick

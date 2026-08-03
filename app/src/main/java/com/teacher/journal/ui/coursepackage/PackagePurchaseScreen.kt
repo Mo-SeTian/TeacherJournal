@@ -45,16 +45,17 @@ fun PackagePurchaseScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(Modifier.height(12.dp))
 
             AppCard {
-                Row(Modifier.padding(16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    AppAvatar(uiState.studentName, size = 40.dp)
-                    Spacer(Modifier.width(12.dp))
+                Row(Modifier.padding(18.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    AppAvatar(uiState.studentName, size = 42.dp)
+                    Spacer(Modifier.width(14.dp))
                     Column {
                         Text("学生", fontSize = 12.sp, color = AppTextSecondary)
+                        Spacer(Modifier.height(2.dp))
                         Text(uiState.studentName, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -91,16 +92,16 @@ fun PackagePurchaseScreen(
             if (count != null && total != null && count > 0 && total > 0) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.07f)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
                 ) {
                     Row(
-                        Modifier.padding(14.dp),
+                        Modifier.padding(16.dp),
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                     ) {
                         Icon(Icons.Outlined.ShoppingBag, contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(10.dp))
                         Text(
                             "约合 ¥${String.format("%.0f", total / count)} / 次",
                             fontSize = 14.sp,
@@ -111,7 +112,7 @@ fun PackagePurchaseScreen(
                 }
             }
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
 
             AppPrimaryButton(
                 text = "确认购买",

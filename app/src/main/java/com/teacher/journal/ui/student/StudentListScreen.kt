@@ -53,7 +53,7 @@ fun StudentListScreen(
                     onValueChange = { viewModel.searchStudents(it) },
                     placeholder = "搜索姓名或电话"
                 )
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(18.dp))
             }
 
             if (uiState.isLoading) {
@@ -68,7 +68,7 @@ fun StudentListScreen(
                         AppEmptyState(
                             icon = Icons.Outlined.People,
                             title = "暂无学生",
-                            subtitle = "点击右上角 + 添加第一位学生"
+                            subtitle = "点击右下角 + 添加第一位学生"
                         )
                     }
                 }

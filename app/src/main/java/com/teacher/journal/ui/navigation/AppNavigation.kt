@@ -34,7 +34,6 @@ fun AppNavigation() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // 判断是否显示底部导航栏
     val bottomNavRoutes = listOf(
         Screen.Home.route,
         Screen.StudentList.route,
@@ -70,9 +69,9 @@ fun AppNavigation() {
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
                                 selectedTextColor = MaterialTheme.colorScheme.primary,
-                                unselectedIconColor = Color(0xFF8E8E93),
-                                unselectedTextColor = Color(0xFF8E8E93),
-                                indicatorColor = Color.Transparent
+                                unselectedIconColor = Color(0xFF9CA3AF),
+                                unselectedTextColor = Color(0xFF9CA3AF),
+                                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
                             ),
                             onClick = {
                                 navController.navigate(item.route) {

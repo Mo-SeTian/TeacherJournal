@@ -72,12 +72,12 @@ fun SessionListScreen(
                     title = "${uiState.currentYear}年${uiState.currentMonth + 1}月",
                     subtitle = "${uiState.totalMonthSessions} 次课 · 已收 ¥${String.format("%.0f", uiState.totalMonthAmount)}"
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
             }
 
             item {
                 Row(
-                    Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                    Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
@@ -85,7 +85,7 @@ fun SessionListScreen(
                             selectedDate = null
                             viewModel.previousMonth()
                         },
-                        modifier = Modifier.size(38.dp).clip(CircleShape).background(AppFill)
+                        modifier = Modifier.size(40.dp).clip(CircleShape).background(AppFill)
                     ) {
                         Icon(Icons.Filled.ChevronLeft, "上月",
                             tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
@@ -106,7 +106,7 @@ fun SessionListScreen(
                             selectedDate = null
                             viewModel.nextMonth()
                         },
-                        modifier = Modifier.size(38.dp).clip(CircleShape).background(AppFill)
+                        modifier = Modifier.size(40.dp).clip(CircleShape).background(AppFill)
                     ) {
                         Icon(Icons.Filled.ChevronRight, "下月",
                             tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
@@ -123,15 +123,15 @@ fun SessionListScreen(
             } else {
                 item {
                     AppCard {
-                        Column(Modifier.padding(vertical = 12.dp, horizontal = 6.dp)) {
-                            Row(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                        Column(Modifier.padding(vertical = 14.dp, horizontal = 8.dp)) {
+                            Row(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
                                 WEEK_LABELS.forEachIndexed { i, label ->
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                                         Text(
                                             label,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = if (i == 6) AppError.copy(alpha = 0.7f) else AppTextSecondary,
+                                            color = if (i == 6) AppError.copy(alpha = 0.6f) else AppTextSecondary,
                                             textAlign = TextAlign.Center
                                         )
                                     }
@@ -252,13 +252,13 @@ private fun DaySessionRow(
                     record.coursePackageId > 0 -> AppPill("扣课时", AppSuccess, AppSuccessBg)
                     record.settlementId > 0 -> AppPill("已结算",
                         MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
                 }
-                Spacer(Modifier.width(4.dp))
-                IconButton(onClick = onEdit, modifier = Modifier.size(30.dp)) {
+                Spacer(Modifier.width(6.dp))
+                IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 }
-                IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = AppError, modifier = Modifier.size(16.dp))
                 }
             }
@@ -277,7 +277,6 @@ private fun CalendarDayCell(
     val primary = MaterialTheme.colorScheme.primary
     val hasSessions = day.sessionCount > 0
 
-    // 相邻月份补位：浅色数字，点击跳转对应月份
     if (day.isAdjacentMonth) {
         Box(
             Modifier
@@ -297,7 +296,7 @@ private fun CalendarDayCell(
 
     val bgColor = when {
         isSelected -> primary
-        isToday -> primary.copy(alpha = 0.1f)
+        isToday -> primary.copy(alpha = 0.08f)
         else -> Color.Transparent
     }
     val textColor = when {
@@ -324,7 +323,7 @@ private fun CalendarDayCell(
                 Spacer(Modifier.height(2.dp))
                 Box(
                     Modifier.size(4.dp).clip(CircleShape)
-                        .background(if (isSelected) Color.White else primary)
+                        .background(if (isSelected) Color.White.copy(alpha = 0.8f) else primary)
                 )
             }
         }

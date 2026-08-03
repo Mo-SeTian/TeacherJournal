@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -35,22 +36,22 @@ import java.util.Locale
 
 // ── 设计令牌 ──
 
-val AppBackground = Color(0xFFF6F7F9)
+val AppBackground = Color(0xFFF8F9FB)
 val AppSurface = Color.White
-val AppDividerColor = Color(0xFFECEDF0)
+val AppDividerColor = Color(0xFFEBEDF2)
 val AppTextSecondary = Color(0xFF8A8F99)
 val AppTextTertiary = Color(0xFFB9BEC8)
-val AppFill = Color(0xFFF1F2F5)
-val AppSuccess = Color(0xFF2E9D7A)
-val AppSuccessBg = Color(0xFFE6F7F0)
-val AppWarning = Color(0xFFE0862E)
-val AppWarningBg = Color(0xFFFFF4E6)
+val AppFill = Color(0xFFF3F4F7)
+val AppSuccess = Color(0xFF34A87A)
+val AppSuccessBg = Color(0xFFEDF8F3)
+val AppWarning = Color(0xFFE8943A)
+val AppWarningBg = Color(0xFFFFF6EB)
 val AppError = Color(0xFFE5484D)
 val AppErrorBg = Color(0xFFFFEDED)
 
-val AppRadius = 16.dp
-val AppRadiusSmall = 12.dp
-val AppRadiusXSmall = 8.dp
+val AppRadius = 20.dp
+val AppRadiusSmall = 14.dp
+val AppRadiusXSmall = 10.dp
 
 // ── 顶栏 ──
 
@@ -108,10 +109,11 @@ fun AppScreenTitle(
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             lineHeight = 36.sp,
+            letterSpacing = (-0.3).sp,
             color = MaterialTheme.colorScheme.onSurface
         )
         if (subtitle != null) {
-            Spacer(Modifier.height(2.dp))
+            Spacer(Modifier.height(3.dp))
             Text(subtitle, fontSize = 14.sp, color = AppTextSecondary)
         }
     }
@@ -128,14 +130,14 @@ fun AppSectionHeader(
     Row(
         modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 10.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             title,
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.3.sp,
+            letterSpacing = 0.4.sp,
             color = AppTextSecondary,
             modifier = Modifier.weight(1f)
         )
@@ -153,10 +155,17 @@ fun AppCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(AppRadius),
+                ambientColor = Color.Black.copy(alpha = 0.04f),
+                spotColor = Color.Black.copy(alpha = 0.04f)
+            ),
         shape = RoundedCornerShape(AppRadius),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(Modifier.padding(contentPadding), content = content)
     }
@@ -179,7 +188,7 @@ fun AppRow(
         modifier
             .fillMaxWidth()
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(horizontal = 16.dp, vertical = 13.dp),
+            .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (leading != null) {
@@ -200,7 +209,7 @@ fun AppRow(
                     subtitle,
                     fontSize = 13.sp,
                     color = AppTextSecondary,
-                    modifier = Modifier.padding(top = 2.dp),
+                    modifier = Modifier.padding(top = 3.dp),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -232,10 +241,10 @@ fun AppDivider(startPadding: Dp = 0.dp) {
 
 @Composable
 fun AppPill(text: String, fg: Color, bg: Color) {
-    Surface(shape = RoundedCornerShape(7.dp), color = bg) {
+    Surface(shape = RoundedCornerShape(8.dp), color = bg) {
         Text(
             text,
-            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             color = fg
@@ -267,7 +276,7 @@ fun AppTypeBadge(paymentType: PaymentType) {
 fun AppAvatar(name: String, size: Dp = 44.dp, fontSize: Int = 17) {
     val primary = MaterialTheme.colorScheme.primary
     Box(
-        Modifier.size(size).clip(CircleShape).background(primary.copy(alpha = 0.12f)),
+        Modifier.size(size).clip(CircleShape).background(primary.copy(alpha = 0.1f)),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -284,20 +293,20 @@ fun AppAvatar(name: String, size: Dp = 44.dp, fontSize: Int = 17) {
 private val WEEK_LABELS = arrayOf("日", "一", "二", "三", "四", "五", "六")
 
 @Composable
-fun AppDateBadge(date: Long, size: Dp = 42.dp) {
+fun AppDateBadge(date: Long, size: Dp = 44.dp) {
     val primary = MaterialTheme.colorScheme.primary
     val local = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
     val day = local.dayOfMonth.toString()
     val week = "周${WEEK_LABELS[local.dayOfWeek.value % 7]}"
     Column(
         Modifier.size(size)
-            .clip(RoundedCornerShape(11.dp))
-            .background(primary.copy(alpha = 0.1f)),
+            .clip(RoundedCornerShape(12.dp))
+            .background(primary.copy(alpha = 0.08f)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(day, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = primary, lineHeight = 18.sp)
-        Text(week, fontSize = 9.sp, fontWeight = FontWeight.Medium, color = primary.copy(alpha = 0.7f), lineHeight = 11.sp)
+        Text(week, fontSize = 9.sp, fontWeight = FontWeight.Medium, color = primary.copy(alpha = 0.65f), lineHeight = 11.sp)
     }
 }
 
@@ -306,9 +315,9 @@ fun AppMiniDateBadge(date: Long) {
     val primary = MaterialTheme.colorScheme.primary
     val text = DateUtils.formatDateDisplay(date)
     Box(
-        Modifier.size(width = 40.dp, height = 36.dp)
-            .clip(RoundedCornerShape(9.dp))
-            .background(primary.copy(alpha = 0.08f)),
+        Modifier.size(width = 42.dp, height = 38.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(primary.copy(alpha = 0.07f)),
         contentAlignment = Alignment.Center
     ) {
         Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = primary)
@@ -325,12 +334,12 @@ fun AppEmptyState(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 36.dp),
+        modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             Modifier.size(56.dp).clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.07f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -340,7 +349,7 @@ fun AppEmptyState(
                 modifier = Modifier.size(26.dp)
             )
         }
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(16.dp))
         Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = AppTextSecondary)
         if (subtitle != null) {
             Spacer(Modifier.height(4.dp))
@@ -361,9 +370,9 @@ fun AppPrimaryButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(52.dp),
+        modifier = modifier.fillMaxWidth().height(54.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White
@@ -412,7 +421,7 @@ fun AppTextField(
         prefix = prefix?.let { { Text(it) } },
         suffix = suffix?.let { { Text(it) } },
         trailingIcon = trailingIcon,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = primary,
             focusedLabelColor = primary,
@@ -434,9 +443,9 @@ fun AppSearchField(
         modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(AppFill)
-            .padding(horizontal = 12.dp, vertical = 9.dp),
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -445,7 +454,7 @@ fun AppSearchField(
             tint = AppTextSecondary,
             modifier = Modifier.size(18.dp)
         )
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(10.dp))
         Box(Modifier.weight(1f)) {
             if (value.isEmpty()) {
                 Text(placeholder, fontSize = 15.sp, color = AppTextSecondary)
@@ -471,12 +480,19 @@ fun AppSearchField(
 fun AppGradientCard(
     modifier: Modifier = Modifier,
     colors: List<Color>,
-    contentPadding: PaddingValues = PaddingValues(20.dp),
+    contentPadding: PaddingValues = PaddingValues(22.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(22.dp),
+                ambientColor = colors.first().copy(alpha = 0.2f),
+                spotColor = colors.first().copy(alpha = 0.2f)
+            ),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {

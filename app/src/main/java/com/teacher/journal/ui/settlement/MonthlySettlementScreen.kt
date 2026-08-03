@@ -68,14 +68,14 @@ fun MonthlySettlementScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 item {
                     AppCard {
-                        Column(Modifier.padding(16.dp)) {
+                        Column(Modifier.padding(18.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                AppAvatar(uiState.student?.name ?: "", size = 40.dp)
-                                Spacer(Modifier.width(12.dp))
+                                AppAvatar(uiState.student?.name ?: "", size = 42.dp)
+                                Spacer(Modifier.width(14.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(uiState.student?.name ?: "", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                                     if (uiState.student?.monthlyRate?.let { it > 0 } == true) {
@@ -102,7 +102,7 @@ fun MonthlySettlementScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
                             onClick = { viewModel.previousMonth(studentId) },
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(36.dp)
                                 .clip(androidx.compose.foundation.shape.CircleShape)
                                 .background(AppFill)
                         ) {
@@ -123,7 +123,7 @@ fun MonthlySettlementScreen(
                         }
                         IconButton(
                             onClick = { viewModel.nextMonth(studentId) },
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(36.dp)
                                 .clip(androidx.compose.foundation.shape.CircleShape)
                                 .background(AppFill)
                         ) {
@@ -239,13 +239,13 @@ fun MonthlySettlementScreen(
 @Composable
 private fun UnsettledRecordCard(record: SessionRecord) {
     AppCard {
-        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.width(52.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.width(54.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(DateUtils.formatDateDisplay(record.date),
                     fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Text(DateUtils.getWeekday(record.date), fontSize = 10.sp, color = AppTextTertiary)
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(14.dp))
             Column {
                 Text("${record.startTime}–${record.endTime}", fontSize = 14.sp, color = AppTextSecondary)
                 if (record.location.isNotBlank()) {
@@ -264,9 +264,9 @@ private fun SettlementCard(
     onDelete: () -> Unit
 ) {
     AppCard(
-        containerColor = if (settlement.isPaid) AppSuccessBg.copy(alpha = 0.55f) else AppWarningBg.copy(alpha = 0.55f)
+        containerColor = if (settlement.isPaid) AppSuccessBg.copy(alpha = 0.5f) else AppWarningBg.copy(alpha = 0.5f)
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
@@ -292,22 +292,22 @@ private fun SettlementCard(
                             containerColor = AppSuccessBg,
                             contentColor = AppSuccess
                         ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
                     ) {
                         Text("标记收款", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
             HorizontalDivider(color = AppDividerColor, thickness = 0.6.dp)
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onEdit, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                TextButton(onClick = onEdit, contentPadding = PaddingValues(horizontal = 10.dp)) {
                     Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("编辑", fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                 }
-                TextButton(onClick = onDelete, contentPadding = PaddingValues(horizontal = 8.dp)) {
+                TextButton(onClick = onDelete, contentPadding = PaddingValues(horizontal = 10.dp)) {
                     Icon(Icons.Outlined.Delete, contentDescription = null, tint = AppError, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("删除", fontSize = 13.sp, color = AppError)
@@ -334,15 +334,15 @@ private fun CreateSettlementDialog(
         onDismissRequest = onDismiss,
         title = { Text("创建月结算") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Surface(
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                     color = AppFill
                 ) {
-                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.DateRange, contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(17.dp))
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(10.dp))
                         Text(
                             "账期 ${DateUtils.formatWindow(window)} · $unsettledCount 次课",
                             fontSize = 13.sp,
@@ -412,7 +412,7 @@ private fun EditSettlementDialog(
         onDismissRequest = onDismiss,
         title = { Text("编辑结算") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(
                     "${settlement.year}年${settlement.month + 1}月 · ${settlement.sessionCount} 次课",
                     fontSize = 13.sp,

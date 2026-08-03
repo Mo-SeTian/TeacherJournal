@@ -68,7 +68,6 @@ fun SessionRecordScreen(
         }
     }
 
-    // 编辑模式：加载记录
     LaunchedEffect(recordId) {
         if (isEditing) {
             viewModel.getRecordOnce(recordId) { record ->
@@ -87,7 +86,6 @@ fun SessionRecordScreen(
         }
     }
 
-    // 预选学生
     LaunchedEffect(preselectedStudentId, students) {
         if (!isEditing && preselectedStudentId != null && selectedStudent == null) {
             selectedStudent = students.find { it.id == preselectedStudentId }
@@ -122,11 +120,10 @@ fun SessionRecordScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(Modifier.height(12.dp))
 
-            // 选择学生
             ExposedDropdownMenuBox(
                 expanded = studentExpanded,
                 onExpandedChange = { if (!isEditing) studentExpanded = it }
@@ -150,7 +147,7 @@ fun SessionRecordScreen(
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(student.name)
-                                    Spacer(Modifier.width(8.dp))
+                                    Spacer(Modifier.width(10.dp))
                                     AppTypeBadge(student.paymentType)
                                 }
                             },
@@ -164,7 +161,6 @@ fun SessionRecordScreen(
                 }
             }
 
-            // 日期
             AppTextField(
                 value = DateUtils.formatDateFull(date),
                 onValueChange = {},
@@ -178,8 +174,7 @@ fun SessionRecordScreen(
                 }
             )
 
-            // 时间
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 AppTextField(
                     value = startTime,
                     onValueChange = { startTime = it; startTimeError = false },
@@ -220,7 +215,6 @@ fun SessionRecordScreen(
                 )
             }
 
-            // 地点
             AppTextField(
                 value = location,
                 onValueChange = { location = it },
@@ -228,7 +222,6 @@ fun SessionRecordScreen(
                 singleLine = true
             )
 
-            // 课程内容
             AppTextField(
                 value = content,
                 onValueChange = { content = it },
@@ -237,7 +230,6 @@ fun SessionRecordScreen(
                 maxLines = 3
             )
 
-            // 收费区域
             selectedStudent?.let { student ->
                 if (student.paymentType == PaymentType.PREPAID) {
                     val packageHint = if (isEditing) "预付费学生 · 本记录不重新扣课时" else "将从课时包中自动扣除 1 次"
@@ -254,7 +246,7 @@ fun SessionRecordScreen(
                         isError = amountError,
                         supportingText = if (amountError) "请输入课时费金额" else null
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         PaymentChip(
                             label = "已收费",
                             icon = Icons.Outlined.CheckCircle,
@@ -273,7 +265,7 @@ fun SessionRecordScreen(
                 }
             }
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
 
             AppPrimaryButton(
                 text = if (isEditing) "保存修改" else "保存记录",
@@ -333,13 +325,13 @@ fun SessionRecordScreen(
             if (isEditing) {
                 OutlinedButton(
                     onClick = { showDeleteDialog = true },
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, AppError.copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppError.copy(alpha = 0.35f)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = AppError)
                 ) {
                     Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(10.dp))
                     Text("删除这条记录", fontSize = 15.sp, fontWeight = FontWeight.Medium)
                 }
             }
@@ -410,12 +402,12 @@ fun SessionRecordScreen(
 private fun InfoBanner(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-        color = color.copy(alpha = 0.08f)
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+        color = color.copy(alpha = 0.07f)
     ) {
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(10.dp))
             Text(text, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = color)
         }
     }
@@ -435,12 +427,12 @@ private fun PaymentChip(
         label = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(icon, contentDescription = null, modifier = Modifier.size(15.dp))
-                Spacer(Modifier.width(5.dp))
+                Spacer(Modifier.width(6.dp))
                 Text(label, fontSize = 13.sp)
             }
         },
         colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = color.copy(alpha = 0.14f),
+            selectedContainerColor = color.copy(alpha = 0.12f),
             selectedLabelColor = color
         )
     )

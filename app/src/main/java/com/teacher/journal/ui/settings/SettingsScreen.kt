@@ -201,7 +201,7 @@ private fun ThemeRow(
 
 @Composable
 private fun ThreeDotSwatch(a: Color, b: Color, c: Color) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
         Swatch(a)
         Swatch(b)
         Swatch(c)
@@ -211,7 +211,7 @@ private fun ThreeDotSwatch(a: Color, b: Color, c: Color) {
 @Composable
 private fun Swatch(color: Color) {
     Box(
-        Modifier.size(16.dp).clip(CircleShape).background(color)
+        Modifier.size(18.dp).clip(CircleShape).background(color)
             .border(0.5.dp, AppDividerColor, CircleShape)
     )
 }

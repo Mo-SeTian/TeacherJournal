@@ -3,7 +3,7 @@ package com.teacher.journal.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * 预设主题配色
+ * 预设主题配色 — 精致现代风
  */
 data class ThemePreset(
     val id: String,
@@ -22,22 +22,22 @@ val ThemePresets = listOf(
     ThemePreset(
         id = "periwinkle",
         name = "淡紫蓝",
-        primary = Color(0xFF5A4EBA),
-        primaryDark = Color(0xFF4A40A0),
-        primaryContainer = Color(0xFFF0EEFC),
-        onPrimaryContainer = Color(0xFF3B3485),
+        primary = Color(0xFF6358D0),
+        primaryDark = Color(0xFF4F46B0),
+        primaryContainer = Color(0xFFEFEDFD),
+        onPrimaryContainer = Color(0xFF3A3290),
         secondary = Color(0xFF4AA370),
-        secondaryContainer = Color(0xFFEFFAF4),
+        secondaryContainer = Color(0xFFEDF8F3),
         tertiary = Color(0xFFE8836A),
         tertiaryContainer = Color(0xFFFFF4F0)
     ),
     ThemePreset(
         id = "mint",
         name = "薄荷绿",
-        primary = Color(0xFF2E9D7A),
-        primaryDark = Color(0xFF1E7A5E),
-        primaryContainer = Color(0xFFE6F7F0),
-        onPrimaryContainer = Color(0xFF0D3B2C),
+        primary = Color(0xFF28A67A),
+        primaryDark = Color(0xFF1E8A64),
+        primaryContainer = Color(0xFFE8F8F2),
+        onPrimaryContainer = Color(0xFF0D4030),
         secondary = Color(0xFF6389CC),
         secondaryContainer = Color(0xFFEEF2FA),
         tertiary = Color(0xFFD4865A),
@@ -46,10 +46,10 @@ val ThemePresets = listOf(
     ThemePreset(
         id = "sky",
         name = "天空蓝",
-        primary = Color(0xFF4D8FCC),
-        primaryDark = Color(0xFF3670AA),
-        primaryContainer = Color(0xFFE3F0FD),
-        onPrimaryContainer = Color(0xFF1A3D60),
+        primary = Color(0xFF4A8FCC),
+        primaryDark = Color(0xFF3874AE),
+        primaryContainer = Color(0xFFE5F1FD),
+        onPrimaryContainer = Color(0xFF1C4268),
         secondary = Color(0xFF5C9988),
         secondaryContainer = Color(0xFFEDF6F3),
         tertiary = Color(0xFFD4926B),
@@ -59,9 +59,9 @@ val ThemePresets = listOf(
         id = "peach",
         name = "蜜桃橘",
         primary = Color(0xFFE0886A),
-        primaryDark = Color(0xFFC06A4E),
+        primaryDark = Color(0xFFC46E50),
         primaryContainer = Color(0xFFFFF0EB),
-        onPrimaryContainer = Color(0xFF5C2A1A),
+        onPrimaryContainer = Color(0xFF623020),
         secondary = Color(0xFF5E9C8A),
         secondaryContainer = Color(0xFFECF7F3),
         tertiary = Color(0xFF7B8CC0),
@@ -71,9 +71,9 @@ val ThemePresets = listOf(
         id = "lavender",
         name = "薰衣草",
         primary = Color(0xFF8E7CC0),
-        primaryDark = Color(0xFF6E5CA0),
+        primaryDark = Color(0xFF7462A6),
         primaryContainer = Color(0xFFF3F0FB),
-        onPrimaryContainer = Color(0xFF352A55),
+        onPrimaryContainer = Color(0xFF3A2E5C),
         secondary = Color(0xFF6DA882),
         secondaryContainer = Color(0xFFEDF6F0),
         tertiary = Color(0xFFD4877E),

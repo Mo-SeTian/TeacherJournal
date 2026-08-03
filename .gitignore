@@ -15,3 +15,4 @@ local.properties
 keystore.properties
 keystore.properties.jks
 *.apk
+PROJECT_HANDOVER.md

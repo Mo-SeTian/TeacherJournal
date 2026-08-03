@@ -85,11 +85,11 @@ fun StudentDetailScreen(
         ) {
             item {
                 Column(
-                    Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                    Modifier.fillMaxWidth().padding(vertical = 12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     AppAvatar(student.name, size = 72.dp, fontSize = 28)
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(14.dp))
                     Text(student.name, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(8.dp))
                     AppTypeBadge(student.paymentType)
@@ -152,13 +152,13 @@ fun StudentDetailScreen(
                     Spacer(Modifier.height(8.dp))
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
                         color = AppWarningBg
                     ) {
-                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Outlined.Payments, contentDescription = null,
                                 tint = AppWarning, modifier = Modifier.size(20.dp))
-                            Spacer(Modifier.width(10.dp))
+                            Spacer(Modifier.width(12.dp))
                             Text(
                                 "${uiState.unpaidRecords.size} 笔待收费 · ¥${fmt(uiState.unpaidRecords.sumOf { it.amount })}",
                                 fontSize = 14.sp,
@@ -216,20 +216,20 @@ fun StudentDetailScreen(
             }
 
             item {
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(24.dp))
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
                     color = AppErrorBg
                 ) {
                     Row(
-                        Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
+                        Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
                             .background(AppErrorBg)
-                            .padding(16.dp),
+                            .padding(18.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(Icons.Outlined.Delete, contentDescription = null, tint = AppError, modifier = Modifier.size(20.dp))
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(14.dp))
                         Text("删除学生", color = AppError, fontSize = 15.sp, fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f))
                         TextButton(onClick = { showDeleteDialog = true }) {
@@ -301,7 +301,7 @@ private fun RemainingSessionsCard(remaining: Int, onBuy: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("剩余课时", fontSize = 13.sp, color = Color.White.copy(alpha = 0.8f))
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text("$remaining", fontSize = 44.sp, fontWeight = FontWeight.Bold,
                         color = Color.White, lineHeight = 48.sp)
@@ -311,12 +311,12 @@ private fun RemainingSessionsCard(remaining: Int, onBuy: () -> Unit) {
             }
             Button(
                 onClick = onBuy,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = primary),
-                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(6.dp))
                 Text("购买课时", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
             }
         }
@@ -332,7 +332,7 @@ private fun MonthlySettlementSummary(
     val unpaidCount = settlements.count { !it.isPaid }
     val unpaidAmount = settlements.filter { !it.isPaid }.sumOf { it.totalAmount }
     AppCard {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(18.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 SummaryStat("累计结算", "${settlements.size}")
                 SummaryStat("待收款", "$unpaidCount",
@@ -340,13 +340,13 @@ private fun MonthlySettlementSummary(
                 if (monthlyRate > 0) SummaryStat("月薪", "¥${fmt(monthlyRate)}")
             }
             if (unpaidAmount > 0) {
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(12.dp))
                 Text("待收款 ¥${fmt(unpaidAmount)}", fontSize = 13.sp, color = AppWarning, fontWeight = FontWeight.Medium)
             }
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(16.dp))
             OutlinedButton(
                 onClick = onManage,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth(),
                 border = androidx.compose.foundation.BorderStroke(1.dp, AppDividerColor),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary)
@@ -361,7 +361,7 @@ private fun MonthlySettlementSummary(
 private fun SummaryStat(label: String, value: String, valueColor: Color = MaterialTheme.colorScheme.onSurface) {
     Column {
         Text(label, fontSize = 12.sp, color = AppTextSecondary)
-        Spacer(Modifier.height(2.dp))
+        Spacer(Modifier.height(3.dp))
         Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = valueColor)
     }
 }
@@ -403,11 +403,11 @@ private fun SessionRecordRow(record: SessionRecord, onEdit: () -> Unit, onDelete
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AppStatusBadge(record.paymentStatus)
-                Spacer(Modifier.width(6.dp))
-                IconButton(onClick = onEdit, modifier = Modifier.size(30.dp)) {
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 }
-                IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = AppError, modifier = Modifier.size(16.dp))
                 }
             }
@@ -432,7 +432,7 @@ private fun RefundDialog(
         onDismissRequest = onDismiss,
         title = { Text("退课时包") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     "剩余 ${pkg.remainingSessions} 次，按购买单价约合 ¥${String.format("%.0f", default)}。退款将计入负收入。",
                     fontSize = 14.sp,
