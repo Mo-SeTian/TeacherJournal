@@ -93,7 +93,7 @@ fun AppScreenTitle(
     subtitle: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(vertical = 4.dp)) {
+    Column(modifier = modifier.padding(vertical = 0.dp)) {
         Text(
             title,
             fontSize = 26.sp,
@@ -125,7 +125,7 @@ fun AppSectionHeader(title: String, modifier: Modifier = Modifier) {
         fontWeight = FontWeight.SemiBold,
         color = Neutral500,
         letterSpacing = 0.5.sp,
-        modifier = modifier.padding(top = 24.dp, bottom = 10.dp, start = 4.dp)
+        modifier = modifier.padding(top = 16.dp, bottom = 8.dp, start = 4.dp)
     )
 }
 

@@ -74,7 +74,7 @@ fun StudentEditScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(4.dp))
 
             AppTextField(
                 value = name,
