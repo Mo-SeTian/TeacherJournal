@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -194,8 +193,8 @@ fun AppNavigation() {
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .padding(horizontal = 20.dp)
                     .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
             )
         }
     }
@@ -212,95 +211,77 @@ private fun FloatingBottomBar(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
-        shadowElevation = 12.dp,
-        tonalElevation = 4.dp
+        shadowElevation = 4.dp,
+        tonalElevation = 2.dp
     ) {
-        Column {
-            // 顶部高光渐变
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(12.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.35f),
-                                Color.White.copy(alpha = 0.0f)
-                            )
-                        )
-                    )
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            bottomNavItems.forEach { item ->
+                val selected = currentRoute == item.route
 
-            // 按钮区域
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                bottomNavItems.forEach { item ->
-                    val selected = currentRoute == item.route
+                val color by animateColorAsState(
+                    targetValue = if (selected)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                    animationSpec = tween(350),
+                    label = "navColor"
+                )
 
-                    val color by animateColorAsState(
-                        targetValue = if (selected)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                        animationSpec = tween(350),
-                        label = "navColor"
-                    )
+                val pillBg by animateColorAsState(
+                    targetValue = if (selected)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    else
+                        Color.Transparent,
+                    animationSpec = tween(350),
+                    label = "navPillBg"
+                )
 
-                    val pillBg by animateColorAsState(
-                        targetValue = if (selected)
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                        else
-                            Color.Transparent,
-                        animationSpec = tween(350),
-                        label = "navPillBg"
-                    )
-
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // 选中胶囊 — 填满整个区域
                     Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 2.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        // 选中胶囊 — 填满整个区域
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp)
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(pillBg)
-                        )
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(pillBg)
+                    )
 
-                        // 图标 + 文字
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = { onItemClick(item) }
-                                )
-                                .padding(vertical = 4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                contentDescription = item.label,
-                                tint = color,
-                                modifier = Modifier.size(22.dp)
+                    // 图标 + 文字
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { onItemClick(item) }
                             )
-                            Spacer(Modifier.height(2.dp))
-                            Text(
-                                item.label,
-                                fontSize = 11.sp,
-                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                                color = color
-                            )
-                        }
+                            .padding(vertical = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                            contentDescription = item.label,
+                            tint = color,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            item.label,
+                            fontSize = 11.sp,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = color
+                        )
                     }
                 }
             }

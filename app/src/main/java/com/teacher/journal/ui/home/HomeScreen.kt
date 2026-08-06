@@ -45,7 +45,7 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToSessionRecord,
-                modifier = Modifier.padding(bottom = 32.dp),
+                modifier = Modifier.padding(bottom = 56.dp),
                 shape = RoundedCornerShape(18.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,

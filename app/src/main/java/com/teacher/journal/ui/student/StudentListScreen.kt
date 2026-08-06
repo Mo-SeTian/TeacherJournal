@@ -42,7 +42,7 @@ fun StudentListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                modifier = Modifier.padding(bottom = 32.dp),
+                modifier = Modifier.padding(bottom = 56.dp),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = androidx.compose.ui.graphics.Color.White,
