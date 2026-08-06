@@ -122,6 +122,7 @@ class StudentViewModel @Inject constructor(
         paymentType: PaymentType,
         monthlyRate: Double,
         settlementDay: Int,
+        status: StudentStatus,
         notes: String,
         onComplete: (Long) -> Unit
     ) {
@@ -134,6 +135,8 @@ class StudentViewModel @Inject constructor(
                 paymentType = paymentType,
                 monthlyRate = monthlyRate,
                 settlementDay = settlementDay,
+                status = status,
+                statusChangedAt = if (status == StudentStatus.ACTIVE) -1 else System.currentTimeMillis(),
                 notes = notes
             )
             val id = studentRepository.insert(student)
@@ -150,11 +153,17 @@ class StudentViewModel @Inject constructor(
         paymentType: PaymentType,
         monthlyRate: Double,
         settlementDay: Int,
+        status: StudentStatus,
         notes: String,
         onComplete: () -> Unit
     ) {
         viewModelScope.launch {
             val existing = studentRepository.getStudentByIdOnce(id) ?: return@launch
+            val statusChangedAt = if (existing.status != status) {
+                System.currentTimeMillis()
+            } else {
+                existing.statusChangedAt
+            }
             studentRepository.update(
                 existing.copy(
                     name = name,
@@ -164,6 +173,8 @@ class StudentViewModel @Inject constructor(
                     paymentType = paymentType,
                     monthlyRate = monthlyRate,
                     settlementDay = settlementDay,
+                    status = status,
+                    statusChangedAt = statusChangedAt,
                     notes = notes
                 )
             )

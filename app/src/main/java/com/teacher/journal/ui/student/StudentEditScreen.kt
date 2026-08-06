@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.EventNote
 import androidx.compose.material.icons.outlined.MoneyOff
+import androidx.compose.material.icons.outlined.PauseCircle
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.data.entity.PaymentType
+import com.teacher.journal.data.entity.StudentStatus
 import com.teacher.journal.ui.components.*
 import com.teacher.journal.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +40,7 @@ fun StudentEditScreen(
     var paymentType by remember { mutableStateOf(PaymentType.PREPAID) }
     var monthlyRate by remember { mutableStateOf("") }
     var settlementDay by remember { mutableStateOf("1") }
+    var status by remember { mutableStateOf(StudentStatus.ACTIVE) }
     var notes by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf(false) }
 
@@ -53,6 +58,7 @@ fun StudentEditScreen(
             paymentType = s.paymentType
             monthlyRate = if (s.monthlyRate > 0) String.format("%.0f", s.monthlyRate) else ""
             settlementDay = s.settlementDay.toString()
+            status = s.status
             notes = s.notes
         }
     }
@@ -130,6 +136,38 @@ fun StudentEditScreen(
                 )
             }
 
+            Text("学生状态", fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                color = Neutral600, modifier = Modifier.padding(top = 4.dp, start = 4.dp, bottom = 2.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TypeChip(
+                    label = "正常", icon = Icons.Outlined.CheckCircle,
+                    selected = status == StudentStatus.ACTIVE,
+                    color = AppSuccess,
+                    onClick = { status = StudentStatus.ACTIVE }
+                )
+                TypeChip(
+                    label = "先冻结", icon = Icons.Outlined.PauseCircle,
+                    selected = status == StudentStatus.FROZEN,
+                    color = AppWarning,
+                    onClick = { status = StudentStatus.FROZEN }
+                )
+                TypeChip(
+                    label = "不带了", icon = Icons.Outlined.Cancel,
+                    selected = status == StudentStatus.DROPPED,
+                    color = AppError,
+                    onClick = { status = StudentStatus.DROPPED }
+                )
+            }
+            if (status != StudentStatus.ACTIVE) {
+                Text(
+                    if (status == StudentStatus.FROZEN) "冻结后，冻结日期之后的月结算不再提示，课时保留"
+                    else "不带了后，该日期之后的月结算不再提示",
+                    fontSize = 12.sp,
+                    color = Neutral500,
+                    modifier = Modifier.padding(start = 4.dp, top = 2.dp)
+                )
+            }
+
             AppTextField(
                 value = notes,
                 onValueChange = { notes = it },
@@ -157,6 +195,7 @@ fun StudentEditScreen(
                             paymentType = paymentType,
                             monthlyRate = monthlyRate.toDoubleOrNull() ?: 0.0,
                             settlementDay = settlementDay.toIntOrNull() ?: 1,
+                            status = status,
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     } else {
@@ -168,6 +207,7 @@ fun StudentEditScreen(
                             paymentType = paymentType,
                             monthlyRate = monthlyRate.toDoubleOrNull() ?: 0.0,
                             settlementDay = settlementDay.toIntOrNull() ?: 1,
+                            status = status,
                             notes = notes.trim()
                         ) { onNavigateBack() }
                     }

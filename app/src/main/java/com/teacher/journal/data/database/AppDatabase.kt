@@ -13,7 +13,7 @@ import com.teacher.journal.data.entity.*
         Earning::class,
         MonthlySettlement::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

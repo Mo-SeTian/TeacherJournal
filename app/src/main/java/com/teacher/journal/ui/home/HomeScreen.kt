@@ -127,18 +127,24 @@ fun HomeScreen(
             val hasPendingItems = uiState.monthlyReminders.isNotEmpty()
                     || uiState.unpaidRecords.isNotEmpty()
                     || uiState.lowSessionStudents.isNotEmpty()
+                    || uiState.unfinishedSessions.isNotEmpty()
 
             if (hasPendingItems) {
                 item {
                     AppSectionHeader("提醒中心")
                 }
 
-                // 月结算 — 未结算
+                // 月结算 — 未结算 / 未收款
                 uiState.monthlyReminders.forEach { reminder ->
                     this@LazyColumn.item {
                         MonthlyReminderCard(
                             reminder = reminder,
-                            onClick = { onNavigateToStudentDetail(reminder.studentId) }
+                            onClick = { onNavigateToStudentDetail(reminder.studentId) },
+                            onMarkPaid = {
+                                if (reminder.settlementId > 0) {
+                                    viewModel.markSettlementAsPaid(reminder.settlementId)
+                                }
+                            }
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -161,12 +167,26 @@ fun HomeScreen(
                     }
                 }
 
-                // 课时不足
+                // 课时不足（正常学生）
                 uiState.lowSessionStudents.forEach { item ->
                     this@LazyColumn.item {
                         LowSessionCard(
                             studentName = item.studentName,
                             remainingSessions = item.remainingSessions,
+                            onClick = { onNavigateToStudentDetail(item.studentId) }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+
+                // 课时待处理（冻结/不带了仍有剩余课时）
+                uiState.unfinishedSessions.forEach { item ->
+                    this@LazyColumn.item {
+                        UnfinishedSessionsCard(
+                            item = item,
+                            onRefund = { amount -> viewModel.refundAllSessions(item.studentId, amount) {} },
+                            onFreeze = { viewModel.setStudentFrozen(item.studentId) },
+                            onResume = { viewModel.setStudentActive(item.studentId) },
                             onClick = { onNavigateToStudentDetail(item.studentId) }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -368,7 +388,8 @@ private fun RecentRecordRow(
 @Composable
 private fun MonthlyReminderCard(
     reminder: ReminderItem,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onMarkPaid: () -> Unit
 ) {
     val isUnsettled = reminder.type == ReminderType.MONTHLY_UNSETTLED
     val icon = if (isUnsettled) Icons.Outlined.DateRange else Icons.Outlined.Payments
@@ -405,11 +426,157 @@ private fun MonthlyReminderCard(
                     color = AppTextSecondary
                 )
             }
-            AppPill(
-                if (isUnsettled) "未结算" else "¥${String.format("%.0f", reminder.amount)}",
-                iconTint,
-                bgColor
-            )
+            if (isUnsettled) {
+                AppPill("未结算", iconTint, bgColor)
+            } else {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        "¥${String.format("%.0f", reminder.amount)}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AppError
+                    )
+                    TextButton(
+                        onClick = onMarkPaid,
+                        modifier = Modifier.height(28.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp)
+                    ) {
+                        Text("已收款", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun UnfinishedSessionsCard(
+    item: UnfinishedSessionsItem,
+    onRefund: (Double) -> Unit,
+    onFreeze: () -> Unit,
+    onResume: () -> Unit,
+    onClick: () -> Unit
+) {
+    var showRefundDialog by remember { mutableStateOf(false) }
+    var refundAmount by remember { mutableStateOf("") }
+
+    AppCard {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(18.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(AppInfoLight),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Outlined.School,
+                        contentDescription = null,
+                        tint = AppInfo,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        item.studentName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        if (item.isFrozen) "已冻结 · 还剩 ${item.remainingSessions} 课时"
+                        else "不带了 · 还剩 ${item.remainingSessions} 课时",
+                        fontSize = 12.sp,
+                        color = AppTextSecondary
+                    )
+                }
+                AppPill(
+                    if (item.isFrozen) "已冻结" else "已停止",
+                    if (item.isFrozen) AppInfo else AppWarning,
+                    if (item.isFrozen) AppInfoLight else AppWarningLight
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = { showRefundDialog = true },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AppError)
+                ) {
+                    Icon(Icons.Outlined.Payments, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("退款清零", fontSize = 13.sp)
+                }
+                if (item.isFrozen) {
+                    OutlinedButton(
+                        onClick = onResume,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AppSuccess)
+                    ) {
+                        Icon(Icons.Outlined.PlayCircle, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("恢复上课", fontSize = 13.sp)
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = onFreeze,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AppInfo)
+                    ) {
+                        Icon(Icons.Outlined.PauseCircle, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("先冻结", fontSize = 13.sp)
+                    }
+                }
+            }
+        }
+    }
+
+    if (showRefundDialog) {
+        AlertDialog(
+            onDismissRequest = { showRefundDialog = false },
+            title = { Text("退款清零") },
+            text = {
+                Column {
+                    Text(
+                        "${item.studentName} 还剩 ${item.remainingSessions} 课时，退款后将清零且不再提示。",
+                        fontSize = 13.sp,
+                        color = AppTextSecondary
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = refundAmount,
+                        onValueChange = { refundAmount = it },
+                        label = { Text("退款金额（元）") },
+                        prefix = { Text("¥") },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
+                        ),
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val amount = refundAmount.toDoubleOrNull() ?: 0.0
+                        showRefundDialog = false
+                        onRefund(amount)
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = AppError)
+                ) { Text("确认退款") }
+            },
+            dismissButton = { TextButton(onClick = { showRefundDialog = false }) { Text("取消") } }
+        )
     }
 }
