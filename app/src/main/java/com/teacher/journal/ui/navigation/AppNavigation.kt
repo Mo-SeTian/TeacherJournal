@@ -169,17 +169,8 @@ fun AppNavigation() {
             }
         }
 
-        // 浮动液态玻璃底栏 — 导航栏区域填充 + 悬浮胶囊按钮
+        // 浮动液态玻璃底栏
         if (showBottomBar) {
-            // 导航栏区域背景填充 — 消除白色长条
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.82f))
-            )
-            // 悬浮胶囊
             FloatingBottomBar(
                 currentRoute = currentDestination?.route,
                 onItemClick = { item ->
@@ -193,8 +184,9 @@ fun AppNavigation() {
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(horizontal = 20.dp)
                     .navigationBarsPadding()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 8.dp)
             )
         }
     }
@@ -210,9 +202,9 @@ private fun FloatingBottomBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
-        shadowElevation = 4.dp,
-        tonalElevation = 2.dp
+        color = MaterialTheme.colorScheme.background,
+        shadowElevation = 8.dp,
+        tonalElevation = 0.dp
     ) {
         Row(
             modifier = Modifier
