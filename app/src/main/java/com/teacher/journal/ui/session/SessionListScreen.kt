@@ -40,7 +40,7 @@ fun SessionListScreen(
     viewModel: SessionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
-    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var selectedDate by remember { mutableStateOf<Long?>(DateUtils.getTodayStart()) }
     var recordToDelete by remember { mutableStateOf<SessionRecord?>(null) }
     var message by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }

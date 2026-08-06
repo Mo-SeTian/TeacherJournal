@@ -66,6 +66,9 @@ fun AppNavigation() {
                     },
                     onNavigateToSessionRecord = {
                         navController.navigate(Screen.SessionRecord.createRoute())
+                    },
+                    onNavigateToMonthlySettlement = { studentId ->
+                        navController.navigate(Screen.MonthlySettlement.createRoute(studentId))
                     }
                 )
             }

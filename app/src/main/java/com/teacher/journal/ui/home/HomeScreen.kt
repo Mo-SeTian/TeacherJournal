@@ -32,6 +32,7 @@ import com.teacher.journal.util.DateUtils
 fun HomeScreen(
     onNavigateToStudentDetail: (Long) -> Unit,
     onNavigateToSessionRecord: () -> Unit,
+    onNavigateToMonthlySettlement: (Long) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -139,10 +140,11 @@ fun HomeScreen(
                     this@LazyColumn.item {
                         MonthlyReminderCard(
                             reminder = reminder,
-                            onClick = { onNavigateToStudentDetail(reminder.studentId) },
-                            onMarkPaid = {
+                            onClick = {
                                 if (reminder.settlementId > 0) {
-                                    viewModel.markSettlementAsPaid(reminder.settlementId)
+                                    onNavigateToMonthlySettlement(reminder.studentId)
+                                } else {
+                                    onNavigateToStudentDetail(reminder.studentId)
                                 }
                             }
                         )
@@ -160,7 +162,7 @@ fun HomeScreen(
                             isOverdue = item.isOverdue,
                             type = "按次收费",
                             onClick = {
-                                viewModel.markAsPaid(item.record.id)
+                                onNavigateToStudentDetail(item.record.studentId)
                             }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -356,7 +358,7 @@ private fun RecentRecordRow(
     AppRow(
         title = studentName,
         subtitle = buildString {
-            append("${record.startTime}–${record.endTime}")
+            append("${DateUtils.formatDayMonth(record.date)} ${record.startTime}–${record.endTime}")
             if (record.content.isNotBlank()) append(" · ${record.content}")
         },
         leading = {
@@ -388,8 +390,7 @@ private fun RecentRecordRow(
 @Composable
 private fun MonthlyReminderCard(
     reminder: ReminderItem,
-    onClick: () -> Unit,
-    onMarkPaid: () -> Unit
+    onClick: () -> Unit
 ) {
     val isUnsettled = reminder.type == ReminderType.MONTHLY_UNSETTLED
     val icon = if (isUnsettled) Icons.Outlined.DateRange else Icons.Outlined.Payments
@@ -429,21 +430,12 @@ private fun MonthlyReminderCard(
             if (isUnsettled) {
                 AppPill("未结算", iconTint, bgColor)
             } else {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        "¥${String.format("%.0f", reminder.amount)}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AppError
-                    )
-                    TextButton(
-                        onClick = onMarkPaid,
-                        modifier = Modifier.height(28.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp)
-                    ) {
-                        Text("已收款", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
-                    }
-                }
+                Text(
+                    "¥${String.format("%.0f", reminder.amount)}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppError
+                )
             }
         }
     }

@@ -363,24 +363,29 @@ private fun RecordRow(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    AppRow(
-        title = "${record.startTime}–${record.endTime}",
-        subtitle = buildString {
-            if (record.content.isNotBlank()) append(record.content)
-            if (record.location.isNotBlank()) {
-                if (isNotEmpty()) append(" · ")
-                append(record.location)
+    Column(Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
+        // 第一行：日期 + 时间 ··· 金额 + 状态 + 操作按钮
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                AppDateBadge(record.date)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "${record.startTime}–${record.endTime}",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
-        },
-        leading = {
-            AppDateBadge(record.date)
-        },
-        trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 when {
                     record.amount > 0 -> {
                         Text("¥${String.format("%.0f", record.amount)}",
-                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface)
                         Spacer(Modifier.width(6.dp))
                         AppStatusBadge(record.paymentStatus)
                     }
@@ -389,16 +394,31 @@ private fun RecordRow(
                         MaterialTheme.colorScheme.primary,
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                 }
-                Spacer(Modifier.width(6.dp))
-                IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
+                Spacer(Modifier.width(4.dp))
+                IconButton(onClick = onEdit, modifier = Modifier.size(30.dp)) {
                     Icon(Icons.Outlined.Edit, contentDescription = "编辑",
                         tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 }
-                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
                     Icon(Icons.Outlined.Delete, contentDescription = "删除",
                         tint = AppError, modifier = Modifier.size(16.dp))
                 }
             }
         }
-    )
+        // 第二行：内容 / 地点
+        if (record.content.isNotBlank() || record.location.isNotBlank()) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                buildString {
+                    if (record.content.isNotBlank()) append(record.content)
+                    if (record.location.isNotBlank()) {
+                        if (isNotEmpty()) append(" · ")
+                        append(record.location)
+                    }
+                },
+                fontSize = 13.sp,
+                color = AppTextSecondary
+            )
+        }
+    }
 }

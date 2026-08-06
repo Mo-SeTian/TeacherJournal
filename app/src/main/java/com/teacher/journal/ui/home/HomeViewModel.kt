@@ -236,10 +236,9 @@ class HomeViewModel @Inject constructor(
                             }
                             first = false
 
-                            // 如果是当前月，只在结算日之后提示
+                            // 如果是当前月，只在结算日当天或之后提示
                             if (y == currentYear && m == currentMonth) {
-                                val currentSettlementStart = LocalDate.of(currentYear, currentMonth + 1, day)
-                                if (today.isBefore(currentSettlementStart)) break
+                                if (today.dayOfMonth < day) break
                             }
 
                             // 冻结/不带了之后，该日期之后的不再提示
