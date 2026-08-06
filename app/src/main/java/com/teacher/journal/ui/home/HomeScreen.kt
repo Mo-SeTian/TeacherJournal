@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.ui.components.*
+import com.teacher.journal.ui.home.ReminderItem
+import com.teacher.journal.ui.home.ReminderType
 import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 
@@ -121,17 +123,28 @@ fun HomeScreen(
                 Spacer(Modifier.height(16.dp))
             }
 
-            // ── 待处理提醒 ──
-            val hasPendingItems = uiState.unpaidRecords.isNotEmpty()
-                    || uiState.unpaidSettlements.isNotEmpty()
+            // ── 提醒中心 ──
+            val hasPendingItems = uiState.monthlyReminders.isNotEmpty()
+                    || uiState.unpaidRecords.isNotEmpty()
                     || uiState.lowSessionStudents.isNotEmpty()
 
             if (hasPendingItems) {
                 item {
-                    AppSectionHeader("待处理")
+                    AppSectionHeader("提醒中心")
                 }
 
-                // 待收费记录
+                // 月结算 — 未结算
+                uiState.monthlyReminders.forEach { reminder ->
+                    this@LazyColumn.item {
+                        MonthlyReminderCard(
+                            reminder = reminder,
+                            onClick = { onNavigateToStudentDetail(reminder.studentId) }
+                        )
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
+
+                // 按次收费 — 待收费
                 uiState.unpaidRecords.forEach { item ->
                     this@LazyColumn.item {
                         PendingCard(
@@ -148,22 +161,7 @@ fun HomeScreen(
                     }
                 }
 
-                // 未收款结算
-                uiState.unpaidSettlements.forEach { item ->
-                    this@LazyColumn.item {
-                        PendingCard(
-                            studentName = item.studentName,
-                            amount = item.settlement.totalAmount,
-                            date = item.settlement.createdAt,
-                            isOverdue = false,
-                            type = "月结算 · ${item.settlement.sessionCount}次课",
-                            onClick = { onNavigateToStudentDetail(item.settlement.studentId) }
-                        )
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
-
-                // 课时不足提醒
+                // 课时不足
                 uiState.lowSessionStudents.forEach { item ->
                     this@LazyColumn.item {
                         LowSessionCard(
@@ -365,4 +363,53 @@ private fun RecentRecordRow(
         showChevron = true,
         onClick = onClick
     )
+}
+
+@Composable
+private fun MonthlyReminderCard(
+    reminder: ReminderItem,
+    onClick: () -> Unit
+) {
+    val isUnsettled = reminder.type == ReminderType.MONTHLY_UNSETTLED
+    val icon = if (isUnsettled) Icons.Outlined.DateRange else Icons.Outlined.Payments
+    val bgColor = if (isUnsettled) AppWarningLight else AppErrorLight
+    val iconTint = if (isUnsettled) AppWarning else AppError
+
+    AppCard {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(bgColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(20.dp))
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    reminder.studentName,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    reminder.detail,
+                    fontSize = 13.sp,
+                    color = AppTextSecondary
+                )
+            }
+            AppPill(
+                if (isUnsettled) "未结算" else "¥${String.format("%.0f", reminder.amount)}",
+                iconTint,
+                bgColor
+            )
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.teacher.journal.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teacher.journal.data.entity.MonthlySettlement
+import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.data.entity.Student
 import com.teacher.journal.data.repository.CoursePackageRepository
@@ -24,7 +25,26 @@ data class HomeUiState(
     val unpaidSettlements: List<UnpaidSettlementItem> = emptyList(),
     val lowSessionStudents: List<LowSessionStudentItem> = emptyList(),
     val recentRecords: List<RecentRecordItem> = emptyList(),
+    /** 月结算提醒 — 结算日已过但未结算或未收款 */
+    val monthlyReminders: List<ReminderItem> = emptyList(),
     val isLoading: Boolean = true
+)
+
+enum class ReminderType {
+    /** 结算日已过，尚未创建结算 */
+    MONTHLY_UNSETTLED,
+    /** 已创建结算但未收款 */
+    MONTHLY_UNPAID
+}
+
+data class ReminderItem(
+    val type: ReminderType,
+    val studentName: String,
+    val studentId: Long,
+    val amount: Double,
+    val detail: String,
+    val isOverdue: Boolean,
+    val settlementId: Long = -1
 )
 
 data class UnpaidRecordItem(
@@ -147,6 +167,45 @@ class HomeViewModel @Inject constructor(
                     }
                     _uiState.update { it.copy(lowSessionStudents = lowSessionList) }
                 }
+            }
+
+            // 月结算提醒 — 结算日已过但未结算或未收款
+            launch {
+                studentRepository.getStudentsByPaymentType(PaymentType.MONTHLY)
+                    .collect { monthlyStudents ->
+                        val reminders = mutableListOf<ReminderItem>()
+                        for (student in monthlyStudents) {
+                            val (year, month) = DateUtils.getDefaultSettlementMonth(student.settlementDay)
+                            val settlement = monthlySettlementRepository.getSettlementForMonth(
+                                student.id, year, month
+                            )
+                            if (settlement == null) {
+                                reminders.add(
+                                    ReminderItem(
+                                        type = ReminderType.MONTHLY_UNSETTLED,
+                                        studentName = student.name,
+                                        studentId = student.id,
+                                        amount = 0.0,
+                                        detail = "结算日${student.settlementDay}号 · ${year}年${month + 1}月未结算",
+                                        isOverdue = true
+                                    )
+                                )
+                            } else if (!settlement.isPaid) {
+                                reminders.add(
+                                    ReminderItem(
+                                        type = ReminderType.MONTHLY_UNPAID,
+                                        studentName = student.name,
+                                        studentId = student.id,
+                                        amount = settlement.totalAmount,
+                                        detail = "${year}年${month + 1}月结算 · ${settlement.sessionCount}次课",
+                                        isOverdue = false,
+                                        settlementId = settlement.id
+                                    )
+                                )
+                            }
+                        }
+                        _uiState.update { it.copy(monthlyReminders = reminders) }
+                    }
             }
 
             // 最近上课记录
