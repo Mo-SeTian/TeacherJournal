@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,7 +25,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.teacher.journal.ui.components.AppTopBar
 import com.teacher.journal.ui.home.HomeScreen
 import com.teacher.journal.ui.coursepackage.PackagePurchaseScreen
 import com.teacher.journal.ui.session.SessionListScreen
@@ -49,32 +49,16 @@ fun AppNavigation() {
     )
     val showBottomBar = currentDestination?.route in bottomNavRoutes
 
-    Scaffold(
-        containerColor = Color.Transparent,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        bottomBar = {
-            if (showBottomBar) {
-                FloatingBottomBar(
-                    currentRoute = currentDestination?.route,
-                    onItemClick = { item ->
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
-            }
-        }
-    ) { padding ->
+    // Box 布局：NavHost + 底栏覆盖层，彻底消除 Scaffold 导航栏底色
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
-            modifier = Modifier
-                .padding(padding)
-                .background(MaterialTheme.colorScheme.background)
+            modifier = Modifier.fillMaxSize()
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
@@ -185,42 +169,57 @@ fun AppNavigation() {
                 )
             }
         }
+
+        // 浮动液态玻璃底栏 — 覆盖层，底部延伸到导航栏区域
+        if (showBottomBar) {
+            FloatingBottomBar(
+                currentRoute = currentDestination?.route,
+                onItemClick = { item ->
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
 }
 
 @Composable
 private fun FloatingBottomBar(
     currentRoute: String?,
-    onItemClick: (BottomNavItem) -> Unit
+    onItemClick: (BottomNavItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    // 液态玻璃容器
+    // 液态玻璃 Surface — 从底栏延伸到底部，覆盖导航栏区域
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .padding(top = 10.dp),
-        shape = RoundedCornerShape(28.dp),
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
         shadowElevation = 12.dp,
         tonalElevation = 4.dp
     ) {
-        // 玻璃边框 — 亮边 + 内阴影感
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.35f),
-                            Color.White.copy(alpha = 0.08f),
-                            Color.White.copy(alpha = 0.0f)
-                        ),
-                        startY = 0f,
-                        endY = Float.POSITIVE_INFINITY
-                    ),
-                    shape = RoundedCornerShape(28.dp)
-                )
-        ) {
+        Column {
+            // 顶部高光渐变
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(12.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.35f),
+                                Color.White.copy(alpha = 0.0f)
+                            )
+                        )
+                    )
+            )
+
+            // 按钮区域
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -240,7 +239,6 @@ private fun FloatingBottomBar(
                         label = "navColor"
                     )
 
-                    // 选中态胶囊背景 — 全覆盖
                     val pillBg by animateColorAsState(
                         targetValue = if (selected)
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
@@ -294,6 +292,13 @@ private fun FloatingBottomBar(
                     }
                 }
             }
+
+            // 导航栏填充区 — 毛玻璃色延伸到导航栏底部
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+            )
         }
     }
 }
