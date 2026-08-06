@@ -170,8 +170,17 @@ fun AppNavigation() {
             }
         }
 
-        // 浮动液态玻璃底栏 — 覆盖层，底部延伸到导航栏区域
+        // 浮动液态玻璃底栏 — 导航栏区域填充 + 悬浮胶囊按钮
         if (showBottomBar) {
+            // 导航栏区域背景填充 — 消除白色长条
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.82f))
+            )
+            // 悬浮胶囊
             FloatingBottomBar(
                 currentRoute = currentDestination?.route,
                 onItemClick = { item ->
@@ -183,7 +192,10 @@ fun AppNavigation() {
                         restoreState = true
                     }
                 },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
             )
         }
     }
@@ -195,10 +207,10 @@ private fun FloatingBottomBar(
     onItemClick: (BottomNavItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 液态玻璃 Surface — 从底栏延伸到底部，覆盖导航栏区域
+    // 液态玻璃胶囊 — 仅包裹按钮区域
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
         shadowElevation = 12.dp,
         tonalElevation = 4.dp
@@ -223,7 +235,7 @@ private fun FloatingBottomBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                    .padding(horizontal = 4.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -292,13 +304,6 @@ private fun FloatingBottomBar(
                     }
                 }
             }
-
-            // 导航栏填充区 — 毛玻璃色延伸到导航栏底部
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-            )
         }
     }
 }
