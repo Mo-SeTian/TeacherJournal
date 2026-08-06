@@ -2,6 +2,7 @@ package com.teacher.journal.ui.student
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PersonAdd
@@ -10,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.data.entity.Student
@@ -24,62 +27,74 @@ fun StudentListScreen(
 ) {
     val uiState by viewModel.listUiState.collectAsStateWithLifecycle()
 
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredStudents = remember(uiState.students, searchQuery) {
+        if (searchQuery.isBlank()) uiState.students
+        else uiState.students.filter {
+            it.name.contains(searchQuery, ignoreCase = true) ||
+                    it.subject.contains(searchQuery, ignoreCase = true)
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = androidx.compose.ui.graphics.Color.White
+                contentColor = androidx.compose.ui.graphics.Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 8.dp
+                )
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "添加学生")
             }
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 32.dp),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 100.dp)
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 100.dp)
         ) {
             item {
-                AppScreenTitle(title = "学生", subtitle = "共 ${uiState.students.size} 位")
-                Spacer(Modifier.height(10.dp))
-            }
-
-            item {
-                AppSearchField(
-                    value = uiState.searchQuery,
-                    onValueChange = { viewModel.searchStudents(it) },
-                    placeholder = "搜索姓名或电话"
+                AppScreenTitle(
+                    title = "学生",
+                    subtitle = "共 ${uiState.students.size} 位学生"
                 )
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(12.dp))
+                AppSearchField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = "搜索姓名或科目"
+                )
+                Spacer(Modifier.height(16.dp))
             }
 
             if (uiState.isLoading) {
                 item {
-                    Box(Modifier.fillMaxWidth().padding(top = 60.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
-            } else if (uiState.students.isEmpty()) {
+            } else if (filteredStudents.isEmpty()) {
                 item {
                     AppCard {
                         AppEmptyState(
                             icon = Icons.Outlined.People,
-                            title = "暂无学生",
-                            subtitle = "点击右下角 + 添加第一位学生"
+                            title = if (searchQuery.isBlank()) "还没有添加学生" else "没有找到匹配的学生",
+                            subtitle = if (searchQuery.isBlank()) "点击右下角 + 添加第一位学生" else null
                         )
                     }
                 }
             } else {
-                item {
-                    AppCard {
-                        uiState.students.forEachIndexed { i, student ->
-                            StudentRow(student) { onNavigateToDetail(student.id) }
-                            if (i < uiState.students.lastIndex) AppDivider()
-                        }
-                    }
+                items(filteredStudents, key = { it.id }) { student ->
+                    StudentCard(
+                        student = student,
+                        onClick = { onNavigateToDetail(student.id) }
+                    )
+                    Spacer(Modifier.height(10.dp))
                 }
             }
         }
@@ -87,20 +102,28 @@ fun StudentListScreen(
 }
 
 @Composable
-private fun StudentRow(student: Student, onClick: () -> Unit) {
-    AppRow(
-        title = student.name,
-        subtitle = buildString {
-            if (student.subject.isNotBlank()) append(student.subject)
-            if (student.location.isNotBlank()) {
-                if (isNotEmpty()) append(" · ")
-                append(student.location)
-            }
-            if (isEmpty() && student.phone.isNotBlank()) append(student.phone)
-        }.ifEmpty { null },
-        leading = { AppAvatar(student.name) },
-        trailing = { AppTypeBadge(student.paymentType) },
-        showChevron = true,
-        onClick = onClick
-    )
+private fun StudentCard(
+    student: Student,
+    onClick: () -> Unit
+) {
+    AppCard {
+        AppRow(
+            title = student.name,
+            subtitle = buildString {
+                if (student.subject.isNotBlank()) append(student.subject)
+                if (student.location.isNotBlank()) {
+                    if (isNotEmpty()) append(" · ")
+                    append(student.location)
+                }
+            },
+            leading = {
+                AppAvatar(name = student.name, size = 48.dp)
+            },
+            trailing = {
+                AppTypeBadge(student.paymentType)
+            },
+            showChevron = true,
+            onClick = onClick
+        )
+    }
 }

@@ -7,12 +7,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.ui.components.*
+import com.teacher.journal.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
@@ -29,15 +31,11 @@ fun PackagePurchaseScreen(
     var countError by remember { mutableStateOf(false) }
     var amountError by remember { mutableStateOf(false) }
 
-    LaunchedEffect(studentId) {
-        viewModel.loadStudent(studentId)
-    }
+    LaunchedEffect(studentId) { viewModel.loadStudent(studentId) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            AppTopBar(title = "购买课时", onBack = onNavigateBack)
-        }
+        topBar = { AppTopBar(title = "购买课时", onBack = onNavigateBack) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -49,9 +47,10 @@ fun PackagePurchaseScreen(
         ) {
             Spacer(Modifier.height(12.dp))
 
+            // 学生信息卡片
             AppCard {
-                Row(Modifier.padding(18.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    AppAvatar(uiState.studentName, size = 42.dp)
+                Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    AppAvatar(uiState.studentName, size = 44.dp)
                     Spacer(Modifier.width(14.dp))
                     Column {
                         Text("学生", fontSize = 12.sp, color = AppTextSecondary)
@@ -97,7 +96,7 @@ fun PackagePurchaseScreen(
                 ) {
                     Row(
                         Modifier.padding(16.dp),
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(Icons.Outlined.ShoppingBag, contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
@@ -119,12 +118,10 @@ fun PackagePurchaseScreen(
                 onClick = {
                     var hasError = false
                     if (sessionCount.isBlank() || sessionCount.toIntOrNull() == null || sessionCount.toInt() <= 0) {
-                        countError = true
-                        hasError = true
+                        countError = true; hasError = true
                     }
                     if (amount.isBlank() || amount.toDoubleOrNull() == null || amount.toDouble() <= 0) {
-                        amountError = true
-                        hasError = true
+                        amountError = true; hasError = true
                     }
                     if (hasError) return@AppPrimaryButton
 

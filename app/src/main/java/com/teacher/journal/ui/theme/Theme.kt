@@ -1,17 +1,14 @@
 package com.teacher.journal.ui.theme
 
 import android.app.Activity
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.teacher.journal.ui.components.AppBackground
-import com.teacher.journal.ui.components.AppDividerColor
-import com.teacher.journal.ui.components.AppFill
-import com.teacher.journal.ui.components.AppTextSecondary
 
 fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
     primary = preset.primary,
@@ -26,17 +23,17 @@ fun themePresetColorScheme(preset: ThemePreset) = lightColorScheme(
     onTertiary = Color.White,
     tertiaryContainer = preset.tertiaryContainer,
     onTertiaryContainer = preset.onPrimaryContainer,
-    error = ErrorRed,
-    errorContainer = ErrorBg,
-    onErrorContainer = ErrorRed,
-    background = AppBackground,
-    onBackground = Color(0xFF1C1F26),
-    surface = Color.White,
-    onSurface = Color(0xFF1C1F26),
-    surfaceVariant = AppFill,
-    onSurfaceVariant = AppTextSecondary,
-    outline = AppDividerColor,
-    outlineVariant = AppDividerColor
+    error = AppError,
+    errorContainer = AppErrorLight,
+    onErrorContainer = AppError,
+    background = preset.background,
+    onBackground = Neutral900,
+    surface = preset.surface,
+    onSurface = Neutral900,
+    surfaceVariant = preset.surfaceVariant,
+    onSurfaceVariant = Neutral500,
+    outline = Neutral200,
+    outlineVariant = Neutral100
 )
 
 @Composable
@@ -50,8 +47,12 @@ fun TeacherJournalTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = android.graphics.Color.TRANSPARENT
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            window.statusBarColor = colorScheme.background.toArgb()
+            window.navigationBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = true
+                isAppearanceLightNavigationBars = true
+            }
         }
     }
 

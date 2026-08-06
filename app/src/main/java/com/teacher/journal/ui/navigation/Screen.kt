@@ -2,18 +2,15 @@ package com.teacher.journal.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.ListAlt
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.People
-import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.outlined.People
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
-/**
- * 应用导航路由
- */
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object StudentList : Screen("student_list")
@@ -36,9 +33,6 @@ sealed class Screen(val route: String) {
     data object Settings : Screen("settings")
 }
 
-/**
- * 底部导航栏项目
- */
 data class BottomNavItem(
     val label: String,
     val route: String,

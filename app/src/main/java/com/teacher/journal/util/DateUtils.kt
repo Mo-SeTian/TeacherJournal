@@ -101,4 +101,11 @@ object DateUtils {
         val today = LocalDate.now(zone)
         return today.year to today.monthValue - 1
     }
+
+    /** 今日中文显示：如 "8月6日 周四" */
+    fun formatToday(): String {
+        val today = LocalDate.now(zone)
+        val weekday = weekdayFormat.format(today)
+        return "${today.monthValue}月${today.dayOfMonth}日 $weekday"
+    }
 }

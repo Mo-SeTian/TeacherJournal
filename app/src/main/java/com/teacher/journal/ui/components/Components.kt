@@ -22,80 +22,70 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.teacher.journal.data.entity.PaymentStatus
 import com.teacher.journal.data.entity.PaymentType
+import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// ── 设计令牌 ──
+// ═══════════════════════════════════════════
+// 设计令牌
+// ═══════════════════════════════════════════
 
-val AppBackground = Color(0xFFF8F9FB)
-val AppSurface = Color.White
-val AppDividerColor = Color(0xFFEBEDF2)
-val AppTextSecondary = Color(0xFF8A8F99)
-val AppTextTertiary = Color(0xFFB9BEC8)
-val AppFill = Color(0xFFF3F4F7)
-val AppSuccess = Color(0xFF34A87A)
-val AppSuccessBg = Color(0xFFEDF8F3)
-val AppWarning = Color(0xFFE8943A)
-val AppWarningBg = Color(0xFFFFF6EB)
-val AppError = Color(0xFFE5484D)
-val AppErrorBg = Color(0xFFFFEDED)
+val AppBackground = Neutral50
+val AppSurface = Neutral0
+val AppDividerColor = Neutral200
+val AppTextSecondary = Neutral500
+val AppTextTertiary = Neutral400
+val AppFill = Neutral100
+val CardRadius = 20.dp
+val ButtonRadius = 16.dp
+val InputRadius = 14.dp
+val ChipRadius = 10.dp
 
-val AppRadius = 20.dp
-val AppRadiusSmall = 14.dp
-val AppRadiusXSmall = 10.dp
-
-// ── 顶栏 ──
+// ═══════════════════════════════════════════
+// 顶栏 — 二级页面返回 + 标题
+// ═══════════════════════════════════════════
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
     title: String,
-    onBack: (() -> Unit)? = null,
+    onBack: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(top = 32.dp)
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (onBack != null) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "返回",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+    TopAppBar(
+        title = {
+            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "返回",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
-            Text(
-                title,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
-            )
-            actions()
-        }
-    }
+        },
+        actions = actions,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = MaterialTheme.colorScheme.background
+        )
+    )
 }
 
-// ── 页面大标题 ──
+// ═══════════════════════════════════════════
+// 页面标题
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppScreenTitle(
@@ -103,228 +93,310 @@ fun AppScreenTitle(
     subtitle: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 10.dp)) {
+    Column(modifier = modifier.padding(vertical = 4.dp)) {
         Text(
             title,
-            fontSize = 30.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
-            lineHeight = 36.sp,
-            letterSpacing = (-0.3).sp,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onBackground,
+            letterSpacing = (-0.5).sp
         )
         if (subtitle != null) {
-            Spacer(Modifier.height(3.dp))
-            Text(subtitle, fontSize = 14.sp, color = AppTextSecondary)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                subtitle,
+                fontSize = 14.sp,
+                color = AppTextSecondary,
+                fontWeight = FontWeight.Normal
+            )
         }
     }
 }
 
-// ── 分组标题 ──
+// ═══════════════════════════════════════════
+// 段落标题
+// ═══════════════════════════════════════════
 
 @Composable
-fun AppSectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-    action: (@Composable () -> Unit)? = null
-) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            title,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.4.sp,
-            color = AppTextSecondary,
-            modifier = Modifier.weight(1f)
-        )
-        if (action != null) action()
-    }
+fun AppSectionHeader(title: String, modifier: Modifier = Modifier) {
+    Text(
+        title,
+        fontSize = 13.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = Neutral500,
+        letterSpacing = 0.5.sp,
+        modifier = modifier.padding(top = 24.dp, bottom = 10.dp, start = 4.dp)
+    )
 }
 
-// ── 卡片 ──
+// ═══════════════════════════════════════════
+// 卡片
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppCard(
     modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 2.dp,
-                shape = RoundedCornerShape(AppRadius),
-                ambientColor = Color.Black.copy(alpha = 0.04f),
-                spotColor = Color.Black.copy(alpha = 0.04f)
-            ),
-        shape = RoundedCornerShape(AppRadius),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(CardRadius),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 1.dp,
+        tonalElevation = 0.dp
     ) {
-        Column(Modifier.padding(contentPadding), content = content)
+        Column(content = content)
     }
 }
 
-// ── 行 ──
+// ═══════════════════════════════════════════
+// 渐变卡片 — 用于收入/统计展示
+// ═══════════════════════════════════════════
+
+@Composable
+fun AppGradientCard(
+    gradientStart: Color,
+    gradientEnd: Color,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(CardRadius),
+        shadowElevation = 4.dp,
+        color = Color.Transparent
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(gradientStart, gradientEnd)
+                    ),
+                    RoundedCornerShape(CardRadius)
+                )
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                content = content
+            )
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// 统计小卡片
+// ═══════════════════════════════════════════
+
+@Composable
+fun AppStatCard(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    accentColor: Color,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
+) {
+    Surface(
+        modifier = modifier
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+        shape = RoundedCornerShape(16.dp),
+        color = accentColor.copy(alpha = 0.06f),
+        shadowElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                value,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = accentColor,
+                letterSpacing = (-0.3).sp
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                label,
+                fontSize = 12.sp,
+                color = Neutral500,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+// ═══════════════════════════════════════════
+// 行 — 可点击的信息行
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppRow(
     title: String,
-    modifier: Modifier = Modifier,
     subtitle: String? = null,
     leading: (@Composable () -> Unit)? = null,
     trailing: (@Composable () -> Unit)? = null,
     showChevron: Boolean = false,
-    titleColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: (() -> Unit)? = null
 ) {
-    Row(
-        modifier
+    Surface(
+        modifier = Modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(horizontal = 18.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+        color = Color.Transparent
     ) {
-        if (leading != null) {
-            leading()
-            Spacer(Modifier.width(14.dp))
-        }
-        Column(Modifier.weight(1f)) {
-            Text(
-                title,
-                fontSize = 16.sp,
-                color = titleColor,
-                fontWeight = FontWeight.Normal,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (subtitle != null) {
+        Row(
+            Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (leading != null) {
+                leading()
+                Spacer(Modifier.width(14.dp))
+            }
+            Column(Modifier.weight(1f)) {
                 Text(
-                    subtitle,
-                    fontSize = 13.sp,
-                    color = AppTextSecondary,
-                    modifier = Modifier.padding(top = 3.dp),
-                    maxLines = 2,
+                    title,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
+                )
+                if (subtitle != null) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        subtitle,
+                        fontSize = 13.sp,
+                        color = AppTextSecondary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            if (trailing != null) {
+                Spacer(Modifier.width(12.dp))
+                trailing()
+            }
+            if (showChevron) {
+                Spacer(Modifier.width(6.dp))
+                Icon(
+                    Icons.Filled.ChevronRight,
+                    contentDescription = null,
+                    tint = AppTextTertiary,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
-        if (trailing != null) trailing()
-        if (showChevron) {
-            Spacer(Modifier.width(4.dp))
-            Icon(
-                Icons.Filled.ChevronRight,
-                contentDescription = null,
-                tint = AppTextTertiary,
-                modifier = Modifier.size(18.dp)
-            )
-        }
     }
 }
 
+// ═══════════════════════════════════════════
+// 分隔线
+// ═══════════════════════════════════════════
+
 @Composable
-fun AppDivider(startPadding: Dp = 0.dp) {
+fun AppDivider() {
     HorizontalDivider(
-        modifier = Modifier.padding(start = startPadding),
-        thickness = 0.6.dp,
-        color = AppDividerColor
+        color = AppDividerColor,
+        thickness = 0.5.dp,
+        modifier = Modifier.padding(horizontal = 18.dp)
     )
 }
 
-// ── 徽章 / 标签 ──
+// ═══════════════════════════════════════════
+// 徽章 — 文本标签
+// ═══════════════════════════════════════════
 
 @Composable
-fun AppPill(text: String, fg: Color, bg: Color) {
-    Surface(shape = RoundedCornerShape(8.dp), color = bg) {
+fun AppPill(
+    label: String,
+    color: Color,
+    bgColor: Color
+) {
+    Surface(
+        shape = RoundedCornerShape(ChipRadius),
+        color = bgColor
+    ) {
         Text(
-            text,
+            label,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
-            color = fg
+            color = color,
+            letterSpacing = 0.3.sp
         )
     }
 }
+
+// ═══════════════════════════════════════════
+// 状态徽章
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppStatusBadge(status: PaymentStatus) {
-    when (status) {
-        PaymentStatus.PAID -> AppPill("已收费", AppSuccess, AppSuccessBg)
-        PaymentStatus.UNPAID -> AppPill("待收费", AppWarning, AppWarningBg)
+    val (color, bg, label) = when (status) {
+        PaymentStatus.PAID -> Triple(AppSuccess, AppSuccessLight, "已收费")
+        PaymentStatus.UNPAID -> Triple(AppWarning, AppWarningLight, "待收费")
     }
+    AppPill(label, color, bg)
 }
 
+// ═══════════════════════════════════════════
+// 付费类型徽章
+// ═══════════════════════════════════════════
+
 @Composable
-fun AppTypeBadge(paymentType: PaymentType) {
-    val (label, fg, bg) = when (paymentType) {
-        PaymentType.PREPAID -> Triple("课时包", AppSuccess, AppSuccessBg)
-        PaymentType.PER_SESSION -> Triple("按次付", AppWarning, AppWarningBg)
-        PaymentType.MONTHLY -> Triple("月结算", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
+fun AppTypeBadge(type: PaymentType) {
+    val (color, bg, label) = when (type) {
+        PaymentType.PREPAID -> Triple(AppSuccess, AppSuccessLight, "课时包")
+        PaymentType.PER_SESSION -> Triple(AppWarning, AppWarningLight, "按次付")
+        PaymentType.MONTHLY -> Triple(AppInfo, AppInfoLight, "月结算")
     }
-    AppPill(label, fg, bg)
+    AppPill(label, color, bg)
 }
 
-// ── 头像 ──
+// ═══════════════════════════════════════════
+// 头像
+// ═══════════════════════════════════════════
 
 @Composable
-fun AppAvatar(name: String, size: Dp = 44.dp, fontSize: Int = 17) {
-    val primary = MaterialTheme.colorScheme.primary
+fun AppAvatar(
+    name: String,
+    size: Dp = 44.dp,
+    modifier: Modifier = Modifier
+) {
+    val initial = name.firstOrNull()?.toString()?.uppercase() ?: "?"
+    val colors = listOf(
+        Color(0xFF6C5CE7), Color(0xFF00B894), Color(0xFF4A90D9),
+        Color(0xFFE17055), Color(0xFF9B59B6), Color(0xFFFDCB6E)
+    )
+    val color = colors[name.hashCode().mod(colors.size).let { if (it < 0) it + colors.size else it }]
+
     Box(
-        Modifier.size(size).clip(CircleShape).background(primary.copy(alpha = 0.1f)),
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(color),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            name.take(1).ifEmpty { "?" },
-            fontSize = fontSize.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = primary
+            initial,
+            fontSize = (size.value * 0.4f).sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
         )
     }
 }
 
-// ── 日期徽章 ──
-
-private val WEEK_LABELS = arrayOf("日", "一", "二", "三", "四", "五", "六")
-
-@Composable
-fun AppDateBadge(date: Long, size: Dp = 44.dp) {
-    val primary = MaterialTheme.colorScheme.primary
-    val local = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate()
-    val day = local.dayOfMonth.toString()
-    val week = "周${WEEK_LABELS[local.dayOfWeek.value % 7]}"
-    Column(
-        Modifier.size(size)
-            .clip(RoundedCornerShape(12.dp))
-            .background(primary.copy(alpha = 0.08f)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(day, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = primary, lineHeight = 18.sp)
-        Text(week, fontSize = 9.sp, fontWeight = FontWeight.Medium, color = primary.copy(alpha = 0.65f), lineHeight = 11.sp)
-    }
-}
-
-@Composable
-fun AppMiniDateBadge(date: Long) {
-    val primary = MaterialTheme.colorScheme.primary
-    val text = DateUtils.formatDateDisplay(date)
-    Box(
-        Modifier.size(width = 42.dp, height = 38.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(primary.copy(alpha = 0.07f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = primary)
-    }
-}
-
-// ── 空状态 ──
+// ═══════════════════════════════════════════
+// 空状态
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppEmptyState(
@@ -334,59 +406,81 @@ fun AppEmptyState(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 40.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            Modifier.size(56.dp).clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.07f)),
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(Neutral100),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(26.dp)
+                tint = Neutral300,
+                modifier = Modifier.size(28.dp)
             )
         }
         Spacer(Modifier.height(16.dp))
-        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = AppTextSecondary)
+        Text(
+            title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Neutral700
+        )
         if (subtitle != null) {
             Spacer(Modifier.height(4.dp))
-            Text(subtitle, fontSize = 13.sp, color = AppTextTertiary)
+            Text(
+                subtitle,
+                fontSize = 13.sp,
+                color = AppTextSecondary,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
 
-// ── 按钮 ──
+// ═══════════════════════════════════════════
+// 主按钮
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppPrimaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector? = null
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
         modifier = modifier.fillMaxWidth().height(54.dp),
-        enabled = enabled,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(ButtonRadius),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+        ),
+        enabled = enabled,
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 2.dp,
+            pressedElevation = 4.dp
         )
     ) {
-        if (icon != null) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-        }
-        Text(text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            text,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
-// ── 输入框 ──
+// ═══════════════════════════════════════════
+// 文本输入框
+// ═══════════════════════════════════════════
 
 @Composable
 fun AppTextField(
@@ -394,119 +488,206 @@ fun AppTextField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    placeholder: String? = null,
-    isError: Boolean = false,
-    supportingText: String? = null,
-    singleLine: Boolean = true,
-    maxLines: Int = 1,
+    placeholder: String = "",
     prefix: String? = null,
     suffix: String? = null,
+    singleLine: Boolean = true,
+    maxLines: Int = 1,
     readOnly: Boolean = false,
-    trailingIcon: (@Composable () -> Unit)? = null,
-    enabled: Boolean = true
+    isError: Boolean = false,
+    supportingText: String? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
-    val primary = MaterialTheme.colorScheme.primary
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
-        enabled = enabled,
-        readOnly = readOnly,
-        label = { Text(label) },
-        placeholder = placeholder?.let { { Text(it) } },
-        isError = isError,
-        supportingText = supportingText?.let { { Text(it) } },
-        singleLine = singleLine,
-        maxLines = maxLines,
-        prefix = prefix?.let { { Text(it) } },
-        suffix = suffix?.let { { Text(it) } },
-        trailingIcon = trailingIcon,
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = primary,
-            focusedLabelColor = primary,
-            cursorColor = primary
+    Column(modifier = modifier) {
+        Text(
+            label,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (isError) AppError else Neutral600,
+            modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
         )
-    )
-}
 
-// ── 搜索框 ──
-
-@Composable
-fun AppSearchField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(AppFill)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            Icons.Outlined.Search,
-            contentDescription = null,
-            tint = AppTextSecondary,
-            modifier = Modifier.size(18.dp)
-        )
-        Spacer(Modifier.width(10.dp))
-        Box(Modifier.weight(1f)) {
-            if (value.isEmpty()) {
-                Text(placeholder, fontSize = 15.sp, color = AppTextSecondary)
+        Surface(
+            shape = RoundedCornerShape(InputRadius),
+            color = if (readOnly) Neutral100 else Neutral50,
+            border = if (isError)
+                androidx.compose.foundation.BorderStroke(1.5.dp, AppError)
+            else
+                androidx.compose.foundation.BorderStroke(1.dp, Neutral200)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = if (singleLine) 14.dp else 12.dp),
+                verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top
+            ) {
+                if (prefix != null) {
+                    Text(
+                        prefix,
+                        fontSize = 15.sp,
+                        color = if (value.isNotEmpty()) MaterialTheme.colorScheme.onSurface else AppTextTertiary,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                }
+                Box(Modifier.weight(1f)) {
+                    if (value.isEmpty() && placeholder.isNotEmpty()) {
+                        Text(
+                            placeholder,
+                            fontSize = 15.sp,
+                            color = AppTextTertiary
+                        )
+                    }
+                    BasicTextField(
+                        value = value,
+                        onValueChange = onValueChange,
+                        readOnly = readOnly,
+                        singleLine = singleLine,
+                        maxLines = maxLines,
+                        textStyle = TextStyle(
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            lineHeight = 22.sp
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                if (suffix != null) {
+                    Text(
+                        suffix,
+                        fontSize = 15.sp,
+                        color = AppTextSecondary,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                if (trailingIcon != null) {
+                    Spacer(Modifier.width(4.dp))
+                    trailingIcon()
+                }
             }
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = true,
-                textStyle = TextStyle(
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                modifier = Modifier.fillMaxWidth()
+        }
+
+        if (supportingText != null) {
+            Text(
+                supportingText,
+                fontSize = 12.sp,
+                color = if (isError) AppError else AppTextSecondary,
+                modifier = Modifier.padding(top = 4.dp, start = 4.dp)
             )
         }
     }
 }
 
-// ── 渐变英雄卡 ──
+// ═══════════════════════════════════════════
+// 搜索框
+// ═══════════════════════════════════════════
 
 @Composable
-fun AppGradientCard(
-    modifier: Modifier = Modifier,
-    colors: List<Color>,
-    contentPadding: PaddingValues = PaddingValues(22.dp),
-    content: @Composable ColumnScope.() -> Unit
+fun AppSearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String = "搜索",
+    modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(22.dp),
-                ambientColor = colors.first().copy(alpha = 0.2f),
-                spotColor = colors.first().copy(alpha = 0.2f)
-            ),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(InputRadius),
+        color = Neutral100,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Neutral200)
     ) {
-        Box(
-            Modifier.background(Brush.linearGradient(colors))
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(Modifier.padding(contentPadding), content = content)
+            Icon(
+                Icons.Outlined.Search,
+                contentDescription = null,
+                tint = AppTextTertiary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(10.dp))
+            Box(Modifier.weight(1f)) {
+                if (value.isEmpty()) {
+                    Text(placeholder, fontSize = 15.sp, color = AppTextTertiary)
+                }
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
 
-private val dateFormatter = DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.CHINA)
+// ═══════════════════════════════════════════
+// 进度条
+// ═══════════════════════════════════════════
 
 @Composable
-fun TodayLabel(): String {
-    return Instant.now().atZone(ZoneId.systemDefault()).format(dateFormatter)
+fun AppProgressBar(
+    progress: Float,
+    color: Color = MaterialTheme.colorScheme.primary,
+    modifier: Modifier = Modifier,
+    height: Dp = 6.dp
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(height)
+            .clip(RoundedCornerShape(height / 2))
+            .background(Neutral100)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(progress.coerceIn(0f, 1f))
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(height / 2))
+                .background(color)
+        )
+    }
+}
+
+// ═══════════════════════════════════════════
+// 日期徽章
+// ═══════════════════════════════════════════
+
+@Composable
+fun AppDateBadge(
+    timestamp: Long,
+    modifier: Modifier = Modifier
+) {
+    val localDate = Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault()).toLocalDate()
+    val today = java.time.LocalDate.now()
+    val label = when {
+        localDate == today -> "今天"
+        localDate == today.minusDays(1) -> "昨天"
+        localDate == today.plusDays(1) -> "明天"
+        localDate.year == today.year -> localDate.format(
+            DateTimeFormatter.ofPattern("M月d日", Locale.CHINESE)
+        )
+        else -> localDate.format(
+            DateTimeFormatter.ofPattern("yyyy/M/d", Locale.CHINESE)
+        )
+    }
+
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        color = Neutral100
+    ) {
+        Text(
+            label,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = Neutral500
+        )
+    }
 }

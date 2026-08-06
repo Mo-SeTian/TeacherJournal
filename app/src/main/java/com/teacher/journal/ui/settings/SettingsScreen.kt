@@ -10,9 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.FileDownload
-import androidx.compose.material.icons.outlined.FileUpload
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teacher.journal.ui.components.*
+import com.teacher.journal.ui.theme.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -47,9 +46,7 @@ fun SettingsScreen(
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
-        if (uri != null) {
-            viewModel.exportData(uri) { message = it }
-        }
+        if (uri != null) viewModel.exportData(uri) { message = it }
     }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -67,12 +64,11 @@ fun SettingsScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 32.dp),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 32.dp)
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp)
         ) {
             item {
                 AppScreenTitle(title = "设置")
@@ -84,9 +80,14 @@ fun SettingsScreen(
                 AppCard {
                     uiState.themes.forEachIndexed { i, theme ->
                         val selected = theme.id == uiState.currentThemeId
-                        ThemeRow(theme.name, theme.primary, theme.secondary, theme.tertiary, selected) {
-                            viewModel.selectTheme(theme.id)
-                        }
+                        ThemeRow(
+                            name = theme.name,
+                            primary = theme.primary,
+                            secondary = theme.secondary,
+                            tertiary = theme.tertiary,
+                            selected = selected,
+                            onClick = { viewModel.selectTheme(theme.id) }
+                        )
                         if (i < uiState.themes.lastIndex) AppDivider()
                     }
                 }
@@ -122,7 +123,10 @@ fun SettingsScreen(
             item { AppSectionHeader("关于") }
             item {
                 AppCard {
-                    AppRow(title = "版本", trailing = { Text("2.0.0", color = AppTextSecondary, fontSize = 15.sp) })
+                    AppRow(
+                        title = "版本",
+                        trailing = { Text("2.0.0", color = AppTextSecondary, fontSize = 15.sp) }
+                    )
                     AppDivider()
                     AppRow(
                         title = "授业札记",
@@ -212,6 +216,6 @@ private fun ThreeDotSwatch(a: Color, b: Color, c: Color) {
 private fun Swatch(color: Color) {
     Box(
         Modifier.size(18.dp).clip(CircleShape).background(color)
-            .border(0.5.dp, AppDividerColor, CircleShape)
+            .border(0.5.dp, Neutral200, CircleShape)
     )
 }

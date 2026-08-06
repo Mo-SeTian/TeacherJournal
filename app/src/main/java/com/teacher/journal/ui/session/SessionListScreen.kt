@@ -60,21 +60,21 @@ fun SessionListScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 32.dp),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 0.dp, bottom = 24.dp)
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
         ) {
             item {
                 AppScreenTitle(
                     title = "${uiState.currentYear}年${uiState.currentMonth + 1}月",
                     subtitle = "${uiState.totalMonthSessions} 次课 · 已收 ¥${String.format("%.0f", uiState.totalMonthAmount)}"
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
             }
 
+            // 月份切换
             item {
                 Row(
                     Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -85,10 +85,10 @@ fun SessionListScreen(
                             selectedDate = null
                             viewModel.previousMonth()
                         },
-                        modifier = Modifier.size(40.dp).clip(CircleShape).background(AppFill)
+                        modifier = Modifier.size(40.dp).clip(CircleShape).background(Neutral100)
                     ) {
                         Icon(Icons.Filled.ChevronLeft, "上月",
-                            tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
+                            tint = Neutral700, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.weight(1f))
                     TextButton(onClick = {
@@ -106,10 +106,10 @@ fun SessionListScreen(
                             selectedDate = null
                             viewModel.nextMonth()
                         },
-                        modifier = Modifier.size(40.dp).clip(CircleShape).background(AppFill)
+                        modifier = Modifier.size(40.dp).clip(CircleShape).background(Neutral100)
                     ) {
                         Icon(Icons.Filled.ChevronRight, "下月",
-                            tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(20.dp))
+                            tint = Neutral700, modifier = Modifier.size(20.dp))
                     }
                 }
             }
@@ -121,9 +121,11 @@ fun SessionListScreen(
                     }
                 }
             } else {
+                // 日历卡片
                 item {
                     AppCard {
                         Column(Modifier.padding(vertical = 14.dp, horizontal = 8.dp)) {
+                            // 星期标题
                             Row(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
                                 WEEK_LABELS.forEachIndexed { i, label ->
                                     Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -131,7 +133,7 @@ fun SessionListScreen(
                                             label,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Medium,
-                                            color = if (i == 6) AppError.copy(alpha = 0.6f) else AppTextSecondary,
+                                            color = if (i >= 5) AppError.copy(alpha = 0.5f) else AppTextSecondary,
                                             textAlign = TextAlign.Center
                                         )
                                     }
@@ -171,6 +173,7 @@ fun SessionListScreen(
                     }
                 }
 
+                // 选中日期的记录
                 val sel = uiState.calendarDays.find { it.date == selectedDate }
                 if (sel != null) {
                     item {
@@ -249,17 +252,19 @@ private fun DaySessionRow(
                         Spacer(Modifier.width(6.dp))
                         AppStatusBadge(record.paymentStatus)
                     }
-                    record.coursePackageId > 0 -> AppPill("扣课时", AppSuccess, AppSuccessBg)
+                    record.coursePackageId > 0 -> AppPill("扣课时", AppSuccess, AppSuccessLight)
                     record.settlementId > 0 -> AppPill("已结算",
                         MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                 }
                 Spacer(Modifier.width(6.dp))
                 IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Outlined.Edit, contentDescription = "编辑", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Outlined.Edit, contentDescription = "编辑",
+                        tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Outlined.Delete, contentDescription = "删除", tint = AppError, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Outlined.Delete, contentDescription = "删除",
+                        tint = AppError, modifier = Modifier.size(16.dp))
                 }
             }
         }
@@ -285,11 +290,7 @@ private fun CalendarDayCell(
                 .clickable(onClick = onAdjacentClick),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                "${day.dayOfMonth}",
-                fontSize = 13.sp,
-                color = AppTextTertiary
-            )
+            Text("${day.dayOfMonth}", fontSize = 13.sp, color = AppTextTertiary)
         }
         return
     }

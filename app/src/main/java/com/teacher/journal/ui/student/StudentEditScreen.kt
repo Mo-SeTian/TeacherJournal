@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.ui.components.*
+import com.teacher.journal.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
@@ -39,9 +40,7 @@ fun StudentEditScreen(
     var nameError by remember { mutableStateOf(false) }
 
     LaunchedEffect(studentId) {
-        if (studentId != null) {
-            viewModel.loadStudentDetail(studentId)
-        }
+        if (studentId != null) viewModel.loadStudentDetail(studentId)
     }
 
     LaunchedEffect(uiState.student) {
@@ -89,26 +88,23 @@ fun StudentEditScreen(
             AppTextField(value = subject, onValueChange = { subject = it }, label = "所学科目")
             AppTextField(value = location, onValueChange = { location = it }, label = "默认上课地点")
 
-            Text("付费类型", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = AppTextSecondary,
-                modifier = Modifier.padding(top = 4.dp))
+            Text("付费类型", fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                color = Neutral600, modifier = Modifier.padding(top = 4.dp, start = 4.dp, bottom = 2.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TypeChip(
-                    label = "课时包",
-                    icon = Icons.Outlined.EventNote,
+                    label = "课时包", icon = Icons.Outlined.EventNote,
                     selected = paymentType == PaymentType.PREPAID,
                     color = AppSuccess,
                     onClick = { paymentType = PaymentType.PREPAID }
                 )
                 TypeChip(
-                    label = "按次付",
-                    icon = Icons.Outlined.MoneyOff,
+                    label = "按次付", icon = Icons.Outlined.MoneyOff,
                     selected = paymentType == PaymentType.PER_SESSION,
                     color = AppWarning,
                     onClick = { paymentType = PaymentType.PER_SESSION }
                 )
                 TypeChip(
-                    label = "月结算",
-                    icon = Icons.Outlined.Payments,
+                    label = "月结算", icon = Icons.Outlined.Payments,
                     selected = paymentType == PaymentType.MONTHLY,
                     color = MaterialTheme.colorScheme.primary,
                     onClick = { paymentType = PaymentType.MONTHLY }
@@ -204,6 +200,7 @@ private fun TypeChip(
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = color.copy(alpha = 0.12f),
             selectedLabelColor = color
-        )
+        ),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
     )
 }

@@ -4,13 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.EventNote
-import androidx.compose.material.icons.outlined.MoneyOff
-import androidx.compose.material.icons.outlined.Payments
-import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +19,7 @@ import com.teacher.journal.data.entity.PaymentType
 import com.teacher.journal.data.entity.SessionRecord
 import com.teacher.journal.data.entity.Student
 import com.teacher.journal.ui.components.*
+import com.teacher.journal.ui.theme.*
 import com.teacher.journal.util.DateUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -124,6 +119,7 @@ fun SessionRecordScreen(
         ) {
             Spacer(Modifier.height(12.dp))
 
+            // 学生选择
             ExposedDropdownMenuBox(
                 expanded = studentExpanded,
                 onExpandedChange = { if (!isEditing) studentExpanded = it }
@@ -135,7 +131,9 @@ fun SessionRecordScreen(
                     readOnly = true,
                     isError = studentError,
                     supportingText = if (studentError) "请选择学生" else null,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = studentExpanded) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = studentExpanded)
+                    },
                     modifier = Modifier.menuAnchor()
                 )
                 ExposedDropdownMenu(
@@ -161,6 +159,7 @@ fun SessionRecordScreen(
                 }
             }
 
+            // 日期
             AppTextField(
                 value = DateUtils.formatDateFull(date),
                 onValueChange = {},
@@ -174,6 +173,7 @@ fun SessionRecordScreen(
                 }
             )
 
+            // 时间
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 AppTextField(
                     value = startTime,
@@ -188,7 +188,7 @@ fun SessionRecordScreen(
                             showStartTimePicker = true
                             startPickerHour = h ?: 14
                         }) {
-                            Icon(Icons.Outlined.Schedule, contentDescription = "选择开始时间",
+                            Icon(Icons.Outlined.Schedule, contentDescription = "选择时间",
                                 tint = MaterialTheme.colorScheme.primary)
                         }
                     },
@@ -207,7 +207,7 @@ fun SessionRecordScreen(
                             showEndTimePicker = true
                             endPickerHour = h ?: 16
                         }) {
-                            Icon(Icons.Outlined.Schedule, contentDescription = "选择结束时间",
+                            Icon(Icons.Outlined.Schedule, contentDescription = "选择时间",
                                 tint = MaterialTheme.colorScheme.primary)
                         }
                     },
@@ -230,10 +230,11 @@ fun SessionRecordScreen(
                 maxLines = 3
             )
 
+            // 付费模式提示
             selectedStudent?.let { student ->
                 if (student.paymentType == PaymentType.PREPAID) {
-                    val packageHint = if (isEditing) "预付费学生 · 本记录不重新扣课时" else "将从课时包中自动扣除 1 次"
-                    InfoBanner(Icons.Outlined.EventNote, packageHint, MaterialTheme.colorScheme.primary)
+                    val hint = if (isEditing) "预付费学生 · 编辑不重新扣课时" else "将从课时包中自动扣除 1 次"
+                    InfoBanner(Icons.Outlined.EventNote, hint, MaterialTheme.colorScheme.primary)
                 } else if (student.paymentType == PaymentType.MONTHLY) {
                     InfoBanner(Icons.Outlined.EventNote, "月结算模式 · 记录将归入对应结算周期", MaterialTheme.colorScheme.primary)
                 } else {
@@ -248,15 +249,13 @@ fun SessionRecordScreen(
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         PaymentChip(
-                            label = "已收费",
-                            icon = Icons.Outlined.CheckCircle,
+                            label = "已收费", icon = Icons.Outlined.CheckCircle,
                             selected = paymentStatus == PaymentStatus.PAID,
                             color = AppSuccess,
                             onClick = { paymentStatus = PaymentStatus.PAID }
                         )
                         PaymentChip(
-                            label = "待收费",
-                            icon = Icons.Outlined.MoneyOff,
+                            label = "待收费", icon = Icons.Outlined.MoneyOff,
                             selected = paymentStatus == PaymentStatus.UNPAID,
                             color = AppWarning,
                             onClick = { paymentStatus = PaymentStatus.UNPAID }
@@ -272,14 +271,12 @@ fun SessionRecordScreen(
                 onClick = {
                     var hasError = false
                     if (selectedStudent == null && !isEditing) {
-                        studentError = true
-                        hasError = true
+                        studentError = true; hasError = true
                     }
                     if (startTime.isBlank()) { startTimeError = true; hasError = true }
                     if (endTime.isBlank()) { endTimeError = true; hasError = true }
                     if (selectedStudent?.paymentType == PaymentType.PER_SESSION && amount.isBlank()) {
-                        amountError = true
-                        hasError = true
+                        amountError = true; hasError = true
                     }
                     if (hasError) return@AppPrimaryButton
 
@@ -287,10 +284,8 @@ fun SessionRecordScreen(
                     if (isEditing && loadedRecord != null) {
                         viewModel.updateRecord(
                             recordId = recordId,
-                            date = date,
-                            startTime = startTime.trim(),
-                            endTime = endTime.trim(),
-                            location = location.trim(),
+                            date = date, startTime = startTime.trim(),
+                            endTime = endTime.trim(), location = location.trim(),
                             content = content.trim(),
                             amount = amount.toDoubleOrNull() ?: 0.0,
                             paymentStatus = paymentStatus,
@@ -299,21 +294,15 @@ fun SessionRecordScreen(
                     } else if (student != null) {
                         viewModel.recordSession(
                             studentId = student.id,
-                            date = date,
-                            startTime = startTime.trim(),
-                            endTime = endTime.trim(),
-                            location = location.trim(),
-                            content = content.trim(),
-                            student = student,
+                            date = date, startTime = startTime.trim(),
+                            endTime = endTime.trim(), location = location.trim(),
+                            content = content.trim(), student = student,
                             amount = amount.toDoubleOrNull() ?: 0.0,
                             paymentStatus = paymentStatus
                         ) { warning ->
                             if (warning != null) {
                                 message = warning
-                                scope.launch {
-                                    delay(1800)
-                                    onNavigateBack()
-                                }
+                                scope.launch { delay(1800); onNavigateBack() }
                             } else {
                                 onNavigateBack()
                             }
@@ -340,6 +329,7 @@ fun SessionRecordScreen(
         }
     }
 
+    // 日期选择器
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = date)
         DatePickerDialog(
@@ -350,12 +340,8 @@ fun SessionRecordScreen(
                     showDatePicker = false
                 }) { Text("确定") }
             },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("取消") }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("取消") } }
+        ) { DatePicker(state = datePickerState) }
     }
 
     if (showStartTimePicker) {
@@ -399,7 +385,11 @@ fun SessionRecordScreen(
 }
 
 @Composable
-private fun InfoBanner(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color) {
+private fun InfoBanner(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    color: Color
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
@@ -434,7 +424,8 @@ private fun PaymentChip(
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = color.copy(alpha = 0.12f),
             selectedLabelColor = color
-        )
+        ),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
     )
 }
 
@@ -462,8 +453,6 @@ fun TimePickerDialog(
         confirmButton = {
             TextButton(onClick = { onConfirm(state.hour, state.minute) }) { Text("确定") }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
-        }
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
     )
 }
