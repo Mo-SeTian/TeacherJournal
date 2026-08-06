@@ -50,7 +50,8 @@ fun AppNavigation() {
     val showBottomBar = currentDestination?.route in bottomNavRoutes
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (showBottomBar) {
                 FloatingBottomBar(
@@ -71,7 +72,9 @@ fun AppNavigation() {
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             composable(Screen.Home.route) {
                 HomeScreen(
@@ -194,7 +197,8 @@ private fun FloatingBottomBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(horizontal = 20.dp)
+            .padding(top = 10.dp),
         shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
         shadowElevation = 12.dp,
