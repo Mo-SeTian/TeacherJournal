@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teacher.journal.data.entity.*
 import com.teacher.journal.data.repository.CoursePackageRepository
+import com.teacher.journal.data.repository.EarningRepository
 import com.teacher.journal.data.repository.MonthlySettlementRepository
 import com.teacher.journal.data.repository.SessionRecordRepository
 import com.teacher.journal.data.repository.StudentRepository
@@ -33,7 +34,8 @@ class StudentViewModel @Inject constructor(
     private val studentRepository: StudentRepository,
     private val coursePackageRepository: CoursePackageRepository,
     private val sessionRecordRepository: SessionRecordRepository,
-    private val monthlySettlementRepository: MonthlySettlementRepository
+    private val monthlySettlementRepository: MonthlySettlementRepository,
+    private val earningRepository: EarningRepository
 ) : ViewModel() {
 
     private val _listUiState = MutableStateFlow(StudentListUiState())
@@ -185,6 +187,30 @@ class StudentViewModel @Inject constructor(
     fun deleteStudent(id: Long, onComplete: () -> Unit) {
         viewModelScope.launch {
             studentRepository.deleteById(id)
+            onComplete()
+        }
+    }
+
+    /** 标记按次收费记录为已收费 */
+    fun markRecordAsPaid(recordId: Long, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            val record = sessionRecordRepository.getRecordByIdOnce(recordId) ?: return@launch
+            if (record.paymentStatus == PaymentStatus.PAID) { onComplete(); return@launch }
+            sessionRecordRepository.updatePaymentStatus(recordId, PaymentStatus.PAID)
+            // 写入收入（幂等）
+            if (record.amount > 0) {
+                earningRepository.getBySessionId(recordId) ?: run {
+                    earningRepository.insert(
+                        Earning(
+                            studentId = record.studentId,
+                            type = EarningType.SESSION_PAYMENT,
+                            amount = record.amount,
+                            sessionId = recordId,
+                            date = record.date
+                        )
+                    )
+                }
+            }
             onComplete()
         }
     }

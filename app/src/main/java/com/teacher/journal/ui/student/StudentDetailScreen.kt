@@ -235,7 +235,12 @@ fun StudentDetailScreen(
                                     onEdit = { onEditRecord(record.id) },
                                     onDelete = {
                                         viewModel.deleteRecord(record.id) { message = "记录已删除" }
-                                    }
+                                    },
+                                    onMarkPaid = if (record.paymentStatus == PaymentStatus.UNPAID && record.amount > 0) {
+                                        {
+                                            viewModel.markRecordAsPaid(record.id) { message = "已标记为已收费" }
+                                        }
+                                    } else null
                                 )
                                 if (i < minOf(uiState.sessionRecords.size, 10) - 1) AppDivider()
                             }
@@ -361,7 +366,8 @@ private fun SettlementRow(settlement: MonthlySettlement) {
 private fun RecordRow(
     record: SessionRecord,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onMarkPaid: (() -> Unit)? = null
 ) {
     Column(Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
         // 第一行：日期 + 时间 ··· 金额 + 状态 + 操作按钮
@@ -419,6 +425,20 @@ private fun RecordRow(
                 fontSize = 13.sp,
                 color = AppTextSecondary
             )
+        }
+        // 未收费记录显示「已收费」按钮
+        if (onMarkPaid != null) {
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(
+                    onClick = onMarkPaid,
+                    colors = ButtonDefaults.textButtonColors(contentColor = AppSuccess)
+                ) {
+                    Icon(Icons.Outlined.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("已收费", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
         }
     }
 }

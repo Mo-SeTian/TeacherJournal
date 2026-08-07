@@ -98,34 +98,34 @@ fun MonthlySettlementScreen(
                 Spacer(Modifier.height(8.dp))
             }
 
-            // 未结算记录
-            if (uiState.unsettledRecords.isNotEmpty()) {
-                item {
-                    AppSectionHeader("未结算记录（${uiState.unsettledRecords.size} 次）")
-                }
-                item {
-                    AppCard {
+            // 未结算记录 + 创建结算按钮（始终显示）
+            item {
+                AppSectionHeader("未结算记录（${uiState.unsettledRecords.size} 次）")
+            }
+            item {
+                AppCard {
+                    if (uiState.unsettledRecords.isNotEmpty()) {
                         uiState.unsettledRecords.forEachIndexed { i, record ->
                             UnsettledRecordRow(record = record)
                             if (i < uiState.unsettledRecords.lastIndex) AppDivider()
                         }
                         HorizontalDivider(color = AppDividerColor, thickness = 0.5.dp)
-                        Row(
-                            Modifier.fillMaxWidth().padding(18.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            TextButton(onClick = { showCreateDialog = true }) {
-                                Icon(Icons.Outlined.Add, contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(6.dp))
-                                Text("创建结算", fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary)
-                            }
+                    }
+                    Row(
+                        Modifier.fillMaxWidth().padding(18.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(onClick = { showCreateDialog = true }) {
+                            Icon(Icons.Outlined.Add, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("创建结算", fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary)
                         }
                     }
-                    Spacer(Modifier.height(16.dp))
                 }
+                Spacer(Modifier.height(16.dp))
             }
 
             // 已有结算

@@ -135,18 +135,12 @@ fun HomeScreen(
                     AppSectionHeader("提醒中心")
                 }
 
-                // 月结算 — 未结算 / 未收款
+                // 月结算 — 未结算 / 未收款，统一跳转到月结算页面处理
                 uiState.monthlyReminders.forEach { reminder ->
                     this@LazyColumn.item {
                         MonthlyReminderCard(
                             reminder = reminder,
-                            onClick = {
-                                if (reminder.settlementId > 0) {
-                                    onNavigateToMonthlySettlement(reminder.studentId)
-                                } else {
-                                    onNavigateToStudentDetail(reminder.studentId)
-                                }
-                            }
+                            onClick = { onNavigateToMonthlySettlement(reminder.studentId) }
                         )
                         Spacer(Modifier.height(8.dp))
                     }
