@@ -41,8 +41,9 @@ class MonthlySettlementViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             val student = studentRepository.getStudentByIdOnce(studentId)
-            val defaultMonth = student?.let { DateUtils.getDefaultSettlementMonth(it.settlementDay) }
-                ?: DateUtils.getCurrentYearMonth()
+            val defaultMonth = student?.let {
+                DateUtils.getDefaultSettlementMonth(it.settlementDay, it.createdAt)
+            } ?: DateUtils.getCurrentYearMonth()
             loadForMonth(studentId, student, defaultMonth.first, defaultMonth.second)
         }
     }

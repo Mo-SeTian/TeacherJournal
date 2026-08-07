@@ -65,14 +65,41 @@ object DateUtils {
     }
 
     /**
-     * 默认结算标签月：最近一个已结束的结算周期。
-     * 例如结算日 25 号，8 月 5 日打开 → 6 月（6.25–7.24 已结束）；8 月 30 日打开 → 7 月。
+     * 默认结算标签月：最近一个已结束的结算周期，但不早于学生创建日所在周期。
+     * - settlementDay=25，8/5 打开 → 6月（6.25–7.24 已结束）
+     * - settlementDay=25，8/30 打开 → 7月（7.25–8.24 已结束）
+     * - 学生 8/6 创建，settlementDay=6，8/7 打开 → 8月不成立（8.6–9.5 未结束）→ 返回创建月
      */
-    fun getDefaultSettlementMonth(settlementDay: Int): Pair<Int, Int> {
+    fun getDefaultSettlementMonth(settlementDay: Int, createdAt: Long = 0L): Pair<Int, Int> {
         val today = LocalDate.now(zone)
-        val monthsAgo = if (today.dayOfMonth >= settlementDay.coerceIn(1, 28)) 1L else 2L
+        val day = settlementDay.coerceIn(1, 28)
+
+        // 最近一个已结束的结算周期
+        val monthsAgo = if (today.dayOfMonth >= day) 1L else 2L
         val closeMonth = today.minusMonths(monthsAgo)
-        return closeMonth.year to closeMonth.monthValue - 1
+        var result = closeMonth.year to closeMonth.monthValue - 1
+
+        // 不能早于学生创建日所在的结算周期
+        if (createdAt > 0) {
+            val created = Instant.ofEpochMilli(createdAt).atZone(zone).toLocalDate()
+            // 创建日所在的结算标签月：如果创建日 < 结算日，属于上一个月的窗口
+            val createdLabelMonth = if (created.dayOfMonth < day) {
+                val m = created.minusMonths(1)
+                m.year to m.monthValue - 1
+            } else {
+                created.year to created.monthValue - 1
+            }
+            // 取较晚的那个
+            if (compareYearMonth(createdLabelMonth, result) > 0) {
+                result = createdLabelMonth
+            }
+        }
+        return result
+    }
+
+    /** 比较两个 (year, month) 对，返回正/零/负 */
+    private fun compareYearMonth(a: Pair<Int, Int>, b: Pair<Int, Int>): Int {
+        return if (a.first != b.first) a.first - b.first else a.second - b.second
     }
 
     fun getCurrentMonthRange(): Pair<Long, Long> {

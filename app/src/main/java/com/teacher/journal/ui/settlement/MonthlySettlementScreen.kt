@@ -51,8 +51,21 @@ fun MonthlySettlementScreen(
     var showDeleteDialog by remember { mutableStateOf<MonthlySettlement?>(null) }
     var createAmount by remember { mutableStateOf("") }
     var createNotes by remember { mutableStateOf("") }
+    var createYear by remember { mutableStateOf(uiState.selectedYear) }
+    var createMonth by remember { mutableStateOf(uiState.selectedMonth) }
     var editAmount by remember { mutableStateOf("") }
     var editNotes by remember { mutableStateOf("") }
+
+    // 打开创建弹窗时同步当前选中月份
+    LaunchedEffect(showCreateDialog) {
+        if (showCreateDialog) {
+            createYear = uiState.selectedYear
+            createMonth = uiState.selectedMonth
+            createAmount = if (uiState.student?.monthlyRate ?: 0.0 > 0) {
+                String.format("%.0f", uiState.student?.monthlyRate ?: 0.0)
+            } else ""
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -163,13 +176,58 @@ fun MonthlySettlementScreen(
 
     // 创建结算对话框
     if (showCreateDialog) {
+        val settlementDay = uiState.student?.settlementDay?.coerceIn(1, 28) ?: 1
+        val window = DateUtils.getSettlementWindow(createYear, createMonth, settlementDay)
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
             title = { Text("创建结算") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("将 ${uiState.unsettledRecords.size} 条未结算记录生成结算",
-                        fontSize = 14.sp, color = AppTextSecondary)
+                    // 年月选择器
+                    Text("结算月份", fontSize = 13.sp, color = AppTextSecondary)
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {
+                                var m = createMonth - 1
+                                var y = createYear
+                                if (m < 0) { m = 11; y -= 1 }
+                                createMonth = m
+                                createYear = y
+                            },
+                            modifier = Modifier.size(36.dp).clip(CircleShape).background(Neutral100)
+                        ) {
+                            Icon(Icons.Filled.ChevronLeft, "上月",
+                                tint = Neutral700, modifier = Modifier.size(18.dp))
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            "${createYear}年${createMonth + 1}月",
+                            fontSize = 18.sp, fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.weight(1f))
+                        IconButton(
+                            onClick = {
+                                var m = createMonth + 1
+                                var y = createYear
+                                if (m > 11) { m = 0; y += 1 }
+                                createMonth = m
+                                createYear = y
+                            },
+                            modifier = Modifier.size(36.dp).clip(CircleShape).background(Neutral100)
+                        ) {
+                            Icon(Icons.Filled.ChevronRight, "下月",
+                                tint = Neutral700, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                    // 结算周期提示
+                    Text(
+                        "结算周期：${DateUtils.formatWindow(window)}",
+                        fontSize = 12.sp, color = AppTextSecondary
+                    )
                     AppTextField(
                         value = createAmount,
                         onValueChange = { createAmount = it },
@@ -190,8 +248,8 @@ fun MonthlySettlementScreen(
                     showCreateDialog = false
                     viewModel.createSettlement(
                         studentId = studentId,
-                        year = uiState.selectedYear,
-                        month = uiState.selectedMonth,
+                        year = createYear,
+                        month = createMonth,
                         amount = createAmount.toDoubleOrNull() ?: 0.0,
                         isPaid = false,
                         notes = createNotes.trim()
